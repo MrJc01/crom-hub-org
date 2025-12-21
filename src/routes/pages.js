@@ -1,14 +1,23 @@
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
 import { config } from '../config/loader.js';
 import { getFinancialSummary, getRecentTransactions, createDonation } from '../services/financeService.js';
 import { getPublicLogs } from '../services/auditService.js';
 import { checkDatabaseHealth } from '../db/client.js';
 import { findOrCreateUser } from '../services/userService.js';
 import { donateSchema } from '../schemas/validation.js';
+import ejs from 'ejs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const viewsPath = join(__dirname, '..', 'views');
+
+/**
+ * Render partial without layout (for HTMX)
+ */
+async function renderPartial(reply, template, data) {
+  const html = await ejs.renderFile(join(viewsPath, template), data);
+  reply.type('text/html').send(html);
+}
 
 /**
  * GET / - Dashboard page
@@ -17,7 +26,6 @@ async function dashboardPage(request, reply) {
   const summary = await getFinancialSummary();
   const transactions = await getRecentTransactions({ limit: 10 });
   
-  // Map transactions for template
   const mappedTransactions = transactions.map(t => ({
     id: t.id,
     type: t.type,
@@ -31,8 +39,9 @@ async function dashboardPage(request, reply) {
   }));
 
   return reply.view('pages/dashboard.ejs', {
-    title: 'Dashboard',
+    title: config.organization.name,
     organization: config.organization,
+    modules: config.modules,
     currency: config.organization.currency || 'BRL',
     balance: summary.summary.balance,
     totalIn: summary.summary.total_in,
@@ -48,10 +57,8 @@ async function dashboardPage(request, reply) {
  * POST /donate - Handle donation (HTMX)
  */
 async function donateHandler(request, reply) {
-  // Parse form data or JSON
   const body = request.body;
   
-  // Validate
   const result = donateSchema.safeParse({
     amount: parseFloat(body.amount),
     message: body.message || undefined,
@@ -59,9 +66,9 @@ async function donateHandler(request, reply) {
   });
 
   if (!result.success) {
-    return reply.viewAsync('partials/donation-form.ejs', {
+    return renderPartial(reply, 'partials/donation-form.ejs', {
       error: result.error.errors[0]?.message || 'Dados inválidos',
-    }, { layout: false });
+    });
   }
 
   const { amount, message, email } = result.data;
@@ -82,16 +89,15 @@ async function donateHandler(request, reply) {
       donorHandle,
     });
 
-    // Return success partial
-    return reply.viewAsync('partials/donation-success.ejs', {
+    return renderPartial(reply, 'partials/donation-success.ejs', {
       amount: transaction.amount,
       handle: donorHandle,
-    }, { layout: false });
+    });
 
   } catch (err) {
-    return reply.viewAsync('partials/donation-form.ejs', {
+    return renderPartial(reply, 'partials/donation-form.ejs', {
       error: err.message,
-    }, { layout: false });
+    });
   }
 }
 

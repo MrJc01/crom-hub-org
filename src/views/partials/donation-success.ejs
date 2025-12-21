@@ -1,25 +1,39 @@
-<div class="text-center py-6 animate-fade-in">
-  <div class="text-5xl mb-4">🎉</div>
-  <h3 class="text-xl font-bold text-white mb-2">Obrigado pela doação!</h3>
-  <p class="text-gray-400 mb-1">
-    Você doou
-    <span class="text-green-400 font-semibold"
+<div class="text-center py-8">
+  <div
+    class="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center text-4xl mx-auto mb-6"
+  >
+    🎉
+  </div>
+
+  <h3 class="text-2xl font-bold mb-2">Obrigado pela doação!</h3>
+
+  <p class="text-gray-400 mb-4">
+    Você contribuiu com
+    <span class="text-green-400 font-bold text-xl"
       >R$ <%= amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
       %></span
     >
   </p>
+
   <% if (handle) { %>
-  <p class="text-sm text-gray-500">
-    Seu handle: <span class="text-primary font-medium"><%= handle %></span>
-  </p>
+  <div
+    class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full mb-6"
+  >
+    <span class="text-gray-400">Seu handle:</span>
+    <span class="text-primary font-mono font-bold"><%= handle %></span>
+  </div>
   <% } else { %>
-  <p class="text-sm text-gray-500">Doação anônima registrada</p>
+  <p class="text-gray-500 text-sm mb-6">Doação registrada como anônima</p>
   <% } %>
+
+  <p class="text-gray-500 text-sm mb-6">
+    Sua contribuição aparecerá na lista de transações públicas.
+  </p>
 
   <button
     onclick="location.reload()"
-    class="mt-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition"
+    class="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl font-medium transition"
   >
-    Ver dashboard atualizado
+    Ver Dashboard Atualizado
   </button>
 </div>
