@@ -1,0 +1,68 @@
+<div class="space-y-3">
+  <% if (transactions.length === 0) { %>
+  <div class="bg-gray-800 rounded-xl p-8 border border-gray-700 text-center">
+    <p class="text-gray-400">Nenhuma transação registrada ainda.</p>
+    <p class="text-sm text-gray-500 mt-1">Seja o primeiro a doar! 💖</p>
+  </div>
+  <% } else { %> <% transactions.forEach((tx, index) => { %>
+  <div
+    class="bg-gray-800 rounded-lg p-4 border border-gray-700 flex items-center justify-between hover:border-gray-600 transition animate-fade-in"
+    style="animation-delay: <%= index * 50 %>ms"
+  >
+    <div class="flex items-center gap-3">
+      <!-- Transaction Icon -->
+      <div
+        class="w-10 h-10 rounded-full flex items-center justify-center text-lg <%= tx.type === 'IN' ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400' %>"
+      >
+        <% if (tx.automatic) { %> 🤖 <% } else if (tx.type === 'IN') { %> 💰 <%
+        } else { %> 📤 <% } %>
+      </div>
+
+      <!-- Transaction Info -->
+      <div>
+        <div class="flex items-center gap-2">
+          <% if (tx.type === 'IN') { %>
+          <span class="font-medium text-white">
+            <%= tx.donor || 'Anônimo' %>
+          </span>
+          <% if (tx.donor && tx.donor !== 'Anônimo') { %>
+          <span class="text-xs bg-gray-700 px-2 py-0.5 rounded text-gray-400"
+            >doador</span
+          >
+          <% } %> <% } else { %>
+          <span class="font-medium text-white">
+            <%= tx.description || 'Gasto' %>
+          </span>
+          <% if (tx.category) { %>
+          <span class="text-xs bg-gray-700 px-2 py-0.5 rounded text-gray-400"
+            ><%= tx.category %></span
+          >
+          <% } %> <% if (tx.automatic) { %>
+          <span
+            class="text-xs bg-purple-900/50 px-2 py-0.5 rounded text-purple-400"
+            >auto</span
+          >
+          <% } %> <% } %>
+        </div>
+        <% if (tx.message) { %>
+        <p class="text-sm text-gray-400 mt-0.5">"<%= tx.message %>"</p>
+        <% } %>
+        <p class="text-xs text-gray-500 mt-1">
+          <%= new Date(tx.createdAt).toLocaleDateString('pt-BR', { day:
+          '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) %>
+        </p>
+      </div>
+    </div>
+
+    <!-- Amount -->
+    <div class="text-right">
+      <p
+        class="font-bold text-lg <%= tx.type === 'IN' ? 'text-green-400' : 'text-red-400' %>"
+      >
+        <%= tx.type === 'IN' ? '+' : '-' %>R$ <%=
+        tx.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) %>
+      </p>
+    </div>
+  </div>
+  <% }) %> <% } %>
+</div>

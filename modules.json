@@ -1,0 +1,89 @@
+{
+  "version": "1.0.0",
+  
+  "organization": {
+    "name": "Hub.org Demo",
+    "description": "Sistema de transparência e governança",
+    "logo_url": "/images/logo.png",
+    "primary_color": "#6366f1",
+    "currency": "BRL",
+    "locale": "pt-BR"
+  },
+
+  "modules": {
+    "donations": {
+      "enabled": true,
+      "settings": {
+        "min_amount": 5.00,
+        "max_amount": 10000.00,
+        "allow_anonymous": true,
+        "show_donor_handle": true,
+        "show_amount": true,
+        "suggested_amounts": [10, 25, 50, 100]
+      }
+    },
+
+    "voting": {
+      "enabled": true,
+      "settings": {
+        "pay_to_create": {
+          "enabled": false,
+          "amount": 0
+        },
+        "pay_to_vote": {
+          "enabled": false,
+          "amount": 0
+        },
+        "quorum": {
+          "min_votes": 5
+        },
+        "duration_days": 7
+      }
+    },
+
+    "transparency": {
+      "enabled": true,
+      "settings": {
+        "show_all_transactions": true,
+        "show_transaction_amounts": true,
+        "dashboard_public": true
+      }
+    },
+
+    "audit_log": {
+      "enabled": true,
+      "settings": {
+        "public": true,
+        "log_admin_actions": true,
+        "actions_to_log": [
+          "BAN_USER",
+          "UNBAN_USER",
+          "DELETE_PROPOSAL",
+          "EDIT_PROPOSAL",
+          "CANCEL_VOTE",
+          "REFUND_TRANSACTION",
+          "CHANGE_SETTINGS"
+        ],
+        "retention_days": 365
+      }
+    },
+
+    "cron": {
+      "enabled": false,
+      "settings": {
+        "auto_payments": {
+          "enabled": false,
+          "payments": []
+        }
+      }
+    }
+  },
+
+  "security": {
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 60
+    },
+    "session_duration_hours": 168
+  }
+}

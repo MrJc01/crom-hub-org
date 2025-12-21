@@ -1,0 +1,25 @@
+<div class="text-center py-6 animate-fade-in">
+  <div class="text-5xl mb-4">🎉</div>
+  <h3 class="text-xl font-bold text-white mb-2">Obrigado pela doação!</h3>
+  <p class="text-gray-400 mb-1">
+    Você doou
+    <span class="text-green-400 font-semibold"
+      >R$ <%= amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+      %></span
+    >
+  </p>
+  <% if (handle) { %>
+  <p class="text-sm text-gray-500">
+    Seu handle: <span class="text-primary font-medium"><%= handle %></span>
+  </p>
+  <% } else { %>
+  <p class="text-sm text-gray-500">Doação anônima registrada</p>
+  <% } %>
+
+  <button
+    onclick="location.reload()"
+    class="mt-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition"
+  >
+    Ver dashboard atualizado
+  </button>
+</div>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title || organization.name %></title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '<%= organization.primary_color || "#6366f1" %>',
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+    <style>
+      .htmx-request {
+        opacity: 0.5;
+        transition: opacity 300ms;
+      }
+      .htmx-request.htmx-indicator {
+        opacity: 1;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+      .animate-pulse-slow {
+        animation: pulse 2s infinite;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-100 min-h-screen">
+    <!-- Header -->
+    <header
+      class="border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50"
+    >
+      <div
+        class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between"
+      >
+        <a href="/" class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-xl font-bold"
+          >
+            H
+          </div>
+          <div>
+            <h1 class="font-bold text-lg"><%= organization.name %></h1>
+            <p class="text-xs text-gray-400">
+              <%= organization.description || "Transparência Financeira" %>
+            </p>
+          </div>
+        </a>
+        <nav class="flex items-center gap-4 text-sm">
+          <a href="/" class="text-gray-300 hover:text-white transition"
+            >Dashboard</a
+          >
+          <a
+            href="/transparency"
+            class="text-gray-300 hover:text-white transition"
+            >Transparência</a
+          >
+          <a href="/status" class="text-gray-300 hover:text-white transition"
+            >Audit Log</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-8"><%- body %></main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 mt-12">
+      <div
+        class="max-w-6xl mx-auto px-4 py-6 text-center text-sm text-gray-500"
+      >
+        <p>
+          <%= organization.name %> — Transparência radical para projetos que
+          importam.
+        </p>
+        <p class="mt-1">
+          Powered by
+          <a
+            href="https://github.com/hub-org"
+            class="text-primary hover:underline"
+            >Hub.org</a
+          >
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      // HTMX event listeners for smooth updates
+      document.body.addEventListener("htmx:afterSwap", function (evt) {
+        evt.detail.target.classList.add("animate-fade-in");
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,121 @@
+// Prisma Schema for Hub.org
+// Based on docs/05-banco-de-dados.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Users
+// ============================================
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  handle       String    @unique
+  role         String    @default("user") // "user" | "admin"
+  createdAt    DateTime  @default(now())
+  banned       Boolean   @default(false)
+  bannedAt     DateTime?
+  bannedReason String?
+
+  // Relations
+  transactions Transaction[]
+  votes        Vote[]
+  proposals    Proposal[]
+}
+
+// ============================================
+// Transactions (Donations & Expenses)
+// ============================================
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  type        String   // "IN" (donation) | "OUT" (expense)
+  amount      Float
+  currency    String   @default("BRL")
+  donorId     Int?
+  donor       User?    @relation(fields: [donorId], references: [id])
+  donorHandle String?
+  message     String?
+  recipient   String?  // For type=OUT
+  description String?
+  category    String?  // "infrastructure", "service", etc.
+  automatic   Boolean  @default(false) // true = cron payment
+  externalId  String?  // Stripe/PagSeguro ID
+  createdAt   DateTime @default(now())
+
+  @@index([type])
+  @@index([createdAt(sort: Desc)])
+}
+
+// ============================================
+// Proposals (Voting)
+// ============================================
+model Proposal {
+  id           Int       @id @default(autoincrement())
+  authorHandle String
+  author       User      @relation(fields: [authorHandle], references: [handle])
+  title        String
+  description  String?
+  status       String    @default("active") // "draft" | "active" | "voting" | "closed" | "cancelled"
+  result       String?   // "approved" | "denied" | "no_quorum"
+  createdAt    DateTime  @default(now())
+  endsAt       DateTime
+  closedAt     DateTime?
+  yesCount     Int       @default(0)
+  noCount      Int       @default(0)
+  abstainCount Int       @default(0)
+
+  // Relations
+  votes Vote[]
+
+  @@index([status])
+  @@index([endsAt])
+}
+
+// ============================================
+// Votes
+// ============================================
+model Vote {
+  id         Int      @id @default(autoincrement())
+  proposalId Int
+  proposal   Proposal @relation(fields: [proposalId], references: [id])
+  userHandle String
+  user       User     @relation(fields: [userHandle], references: [handle])
+  vote       String   // "yes" | "no" | "abstain"
+  votedAt    DateTime @default(now())
+
+  @@unique([proposalId, userHandle])
+  @@index([proposalId])
+}
+
+// ============================================
+// Audit Logs
+// ============================================
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  action      String   // BAN_USER, UNBAN_USER, DELETE_PROPOSAL, etc.
+  adminHandle String
+  target      String?  // @handle or resource id affected
+  details     String?  // JSON string with additional info
+  timestamp   DateTime @default(now())
+  public      Boolean  @default(true)
+
+  @@index([timestamp(sort: Desc)])
+  @@index([action])
+}
+
+// ============================================
+// Settings (Backup of modules.json)
+// ============================================
+model Setting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String   // JSON string
+  updatedAt DateTime @default(now())
+  updatedBy String?  // Admin handle
+}
