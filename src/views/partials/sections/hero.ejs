@@ -1,0 +1,99 @@
+<section
+  id="hero"
+  class="gradient-bg min-h-screen flex items-center justify-center pt-20 relative overflow-hidden"
+>
+  <div class="absolute inset-0 overflow-hidden">
+    <div
+      class="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl"
+    ></div>
+    <div
+      class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl"
+    ></div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6 py-20 relative z-10">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div>
+        <div
+          class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-sm mb-6"
+        >
+          <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+          <span>Open Source & Self-Hosted</span>
+        </div>
+
+        <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+          <%= settings.title || 'Transparência Radical' %>
+          <span
+            class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-400"
+            ><%= settings.subtitle || 'para Projetos' %></span
+          >
+        </h1>
+
+        <p class="text-xl text-gray-300 mb-8 max-w-lg">
+          <%= organization.description %>
+        </p>
+
+        <div class="flex flex-wrap gap-4">
+          <a
+            href="#doar"
+            class="px-8 py-4 bg-primary hover:bg-primary-dark rounded-xl font-semibold transition transform hover:scale-105"
+            >💖 <%= settings.cta_primary || 'Fazer Doação' %></a
+          >
+          <a
+            href="#transparencia"
+            class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-xl font-semibold transition"
+            >📊 <%= settings.cta_secondary || 'Ver Finanças' %></a
+          >
+        </div>
+
+        <div class="flex gap-8 mt-12">
+          <div>
+            <p class="text-3xl font-bold text-green-400">
+              +R$ <%= data.totalIn.toLocaleString('pt-BR',
+              {minimumFractionDigits: 0}) %>
+            </p>
+            <p class="text-gray-400 text-sm">Arrecadado</p>
+          </div>
+          <div>
+            <p class="text-3xl font-bold"><%= data.donationCount %></p>
+            <p class="text-gray-400 text-sm">Apoiadores</p>
+          </div>
+          <div>
+            <p class="text-3xl font-bold text-primary">100%</p>
+            <p class="text-gray-400 text-sm">Transparente</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="hidden lg:block">
+        <div class="glass rounded-3xl p-8 border border-white/10 animate-float">
+          <div class="flex items-center gap-3 mb-6">
+            <div
+              class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-2xl"
+            >
+              💰
+            </div>
+            <div>
+              <p class="font-semibold">Saldo Atual</p>
+              <p class="text-gray-400 text-sm">Atualizado em tempo real</p>
+            </div>
+          </div>
+          <p class="text-5xl font-bold mb-4">
+            R$ <%= data.balance.toLocaleString('pt-BR', {minimumFractionDigits:
+            2}) %>
+          </p>
+          <div class="flex gap-4 text-sm">
+            <span class="text-green-400"
+              >↑ R$ <%= data.totalIn.toLocaleString('pt-BR',
+              {minimumFractionDigits: 0}) %> entrada</span
+            >
+            <span class="text-red-400"
+              >↓ R$ <%= data.totalOut.toLocaleString('pt-BR',
+              {minimumFractionDigits: 0}) %> saída</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

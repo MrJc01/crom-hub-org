@@ -171,6 +171,18 @@ const modulesSchema = z.object({
       session_duration_hours: z.number().int().positive().default(168),
     })
     .optional(),
+
+  landing_page: z
+    .object({
+      sections: z.array(
+        z.object({
+          id: z.string().min(1),
+          enabled: z.boolean().default(true),
+          settings: z.record(z.any()).optional(),
+        })
+      ),
+    })
+    .optional(),
 });
 
 // ============================================
@@ -298,6 +310,7 @@ export const config = {
   modules: modules.modules,
   security: modules.security,
   version: modules.version,
+  landingPage: modules.landing_page || { sections: [] },
 };
 
 export function isAdmin(email) {

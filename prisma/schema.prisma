@@ -22,11 +22,30 @@ model User {
   banned       Boolean   @default(false)
   bannedAt     DateTime?
   bannedReason String?
+  activeSession Boolean @default(false)
 
   // Relations
   transactions Transaction[]
   votes        Vote[]
   proposals    Proposal[]
+  tokens       AuthToken[]
+}
+
+// ============================================
+// Auth Tokens (Magic Links)
+// ============================================
+model AuthToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   @default("login") // login, verify
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([expiresAt])
 }
 
 // ============================================

@@ -1,0 +1,79 @@
+<div class="mb-8">
+  <h1 class="text-2xl font-bold mb-2">⚙️ Painel Administrativo</h1>
+  <p class="text-gray-400">Bem-vindo, <%= adminEmail %></p>
+</div>
+
+<!-- Quick Stats -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+  <a
+    href="/admin/layout"
+    class="glass rounded-2xl p-6 border border-white/10 hover:border-primary/50 transition group"
+  >
+    <div class="flex items-center gap-4">
+      <div
+        class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-2xl"
+      >
+        🎨
+      </div>
+      <div>
+        <h3 class="font-semibold group-hover:text-primary transition">
+          Editor de Layout
+        </h3>
+        <p class="text-sm text-gray-400">Reordene as seções da página</p>
+      </div>
+    </div>
+  </a>
+
+  <a
+    href="/status"
+    class="glass rounded-2xl p-6 border border-white/10 hover:border-primary/50 transition group"
+  >
+    <div class="flex items-center gap-4">
+      <div
+        class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center text-2xl"
+      >
+        📋
+      </div>
+      <div>
+        <h3 class="font-semibold group-hover:text-primary transition">
+          Audit Log
+        </h3>
+        <p class="text-sm text-gray-400">Visualizar ações administrativas</p>
+      </div>
+    </div>
+  </a>
+
+  <a
+    href="/"
+    class="glass rounded-2xl p-6 border border-white/10 hover:border-primary/50 transition group"
+  >
+    <div class="flex items-center gap-4">
+      <div
+        class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-2xl"
+      >
+        🏠
+      </div>
+      <div>
+        <h3 class="font-semibold group-hover:text-primary transition">
+          Ver Site
+        </h3>
+        <p class="text-sm text-gray-400">Acessar página pública</p>
+      </div>
+    </div>
+  </a>
+</div>
+
+<!-- Info -->
+<div class="glass rounded-xl p-6 border border-white/10">
+  <h3 class="font-semibold mb-4">Informações do Sistema</h3>
+  <div class="grid grid-cols-2 gap-4 text-sm">
+    <div>
+      <span class="text-gray-400">Organização:</span>
+      <span class="ml-2"><%= organization.name %></span>
+    </div>
+    <div>
+      <span class="text-gray-400">Moeda:</span>
+      <span class="ml-2"><%= organization.currency || 'BRL' %></span>
+    </div>
+  </div>
+</div>

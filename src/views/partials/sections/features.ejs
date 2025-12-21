@@ -1,0 +1,70 @@
+<section id="funcionalidades" class="py-24">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">
+        <%= settings.title || 'Módulos Habilitados' %>
+      </h2>
+      <p class="text-xl text-gray-400">
+        <%= settings.subtitle || 'Funcionalidades ativas nesta instância' %>
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div
+        class="rounded-2xl p-6 border <%= modules.donations?.enabled ? 'bg-green-500/10 border-green-500/30' : 'bg-gray-800/50 border-gray-700' %>"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-2xl">💰</span>
+          <span
+            class="px-2 py-1 rounded-full text-xs <%= modules.donations?.enabled ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-400' %>"
+            ><%= modules.donations?.enabled ? 'Ativo' : 'Inativo' %></span
+          >
+        </div>
+        <h3 class="font-semibold mb-2">Doações</h3>
+        <p class="text-sm text-gray-400">Receba contribuições</p>
+      </div>
+
+      <div
+        class="rounded-2xl p-6 border <%= modules.voting?.enabled ? 'bg-purple-500/10 border-purple-500/30' : 'bg-gray-800/50 border-gray-700' %>"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-2xl">🗳️</span>
+          <span
+            class="px-2 py-1 rounded-full text-xs <%= modules.voting?.enabled ? 'bg-purple-500/20 text-purple-400' : 'bg-gray-700 text-gray-400' %>"
+            ><%= modules.voting?.enabled ? 'Ativo' : 'Inativo' %></span
+          >
+        </div>
+        <h3 class="font-semibold mb-2">Votação</h3>
+        <p class="text-sm text-gray-400">Governança participativa</p>
+      </div>
+
+      <div
+        class="rounded-2xl p-6 border <%= modules.transparency?.enabled ? 'bg-blue-500/10 border-blue-500/30' : 'bg-gray-800/50 border-gray-700' %>"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-2xl">📊</span>
+          <span
+            class="px-2 py-1 rounded-full text-xs <%= modules.transparency?.enabled ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-700 text-gray-400' %>"
+            ><%= modules.transparency?.enabled ? 'Ativo' : 'Inativo' %></span
+          >
+        </div>
+        <h3 class="font-semibold mb-2">Transparência</h3>
+        <p class="text-sm text-gray-400">Dashboard público</p>
+      </div>
+
+      <div
+        class="rounded-2xl p-6 border <%= modules.audit_log?.enabled ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-gray-800/50 border-gray-700' %>"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-2xl">📋</span>
+          <span
+            class="px-2 py-1 rounded-full text-xs <%= modules.audit_log?.enabled ? 'bg-yellow-500/20 text-yellow-400' : 'bg-gray-700 text-gray-400' %>"
+            ><%= modules.audit_log?.enabled ? 'Ativo' : 'Inativo' %></span
+          >
+        </div>
+        <h3 class="font-semibold mb-2">Audit Log</h3>
+        <p class="text-sm text-gray-400">Ações públicas</p>
+      </div>
+    </div>
+  </div>
+</section>

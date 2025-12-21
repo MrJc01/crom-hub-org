@@ -38,10 +38,8 @@ async function dashboardPage(request, reply) {
     createdAt: t.createdAt,
   }));
 
-  return reply.view('pages/dashboard.ejs', {
-    title: config.organization.name,
-    organization: config.organization,
-    modules: config.modules,
+  // Unified data object for all sections
+  const data = {
     currency: config.organization.currency || 'BRL',
     balance: summary.summary.balance,
     totalIn: summary.summary.total_in,
@@ -50,6 +48,14 @@ async function dashboardPage(request, reply) {
     expenseCount: summary.counts.expenses,
     goal: summary.goal,
     transactions: mappedTransactions,
+  };
+
+  return reply.view('pages/dashboard.ejs', {
+    title: config.organization.name,
+    organization: config.organization,
+    modules: config.modules,
+    sections: config.landingPage.sections,
+    data,
   });
 }
 

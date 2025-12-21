@@ -1,0 +1,134 @@
+<div class="mb-8">
+  <h1 class="text-2xl font-bold mb-2">🎨 Editor de Layout</h1>
+  <p class="text-gray-400">Arraste para reordenar as seções da página inicial</p>
+</div>
+
+<!-- Instructions -->
+<div class="glass rounded-xl p-4 border border-white/10 mb-8">
+  <div class="flex items-center gap-3">
+    <span class="text-2xl">💡</span>
+    <div>
+      <p class="font-medium">Dica</p>
+      <p class="text-sm text-gray-400">Use os botões de seta para mover seções. Clique no toggle para ativar/desativar.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Sections List -->
+<div id="sections-list" class="space-y-3">
+  <% sections.forEach(function(section, index) { %>
+    <div class="section-item glass rounded-xl p-4 border border-white/10 flex items-center justify-between" data-id="<%= section.id %>">
+      <div class="flex items-center gap-4">
+        <!-- Drag Handle -->
+        <div class="text-gray-500 cursor-move text-xl">⠿</div>
+        
+        <!-- Section Info -->
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-semibold capitalize"><%= section.id %></span>
+            <span class="px-2 py-0.5 rounded-full text-xs <%= section.enabled ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-400' %>">
+              <%= section.enabled ? 'Ativo' : 'Inativo' %>
+            </span>
+          </div>
+          <p class="text-sm text-gray-500"><%= section.settings?.title || section.settings?.subtitle || '' %></p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <!-- Move Up -->
+        <button 
+          onclick="moveSection('<%= section.id %>', 'up')"
+          class="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition <%= index === 0 ? 'opacity-30 cursor-not-allowed' : '' %>"
+          <%= index === 0 ? 'disabled' : '' %>
+        >↑</button>
+        
+        <!-- Move Down -->
+        <button 
+          onclick="moveSection('<%= section.id %>', 'down')"
+          class="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition <%= index === sections.length - 1 ? 'opacity-30 cursor-not-allowed' : '' %>"
+          <%= index === sections.length - 1 ? 'disabled' : '' %>
+        >↓</button>
+        
+        <!-- Toggle -->
+        <button 
+          onclick="toggleSection('<%= section.id %>', <%= !section.enabled %>)"
+          class="p-2 rounded-lg transition <%= section.enabled ? 'bg-green-500/20 text-green-400 hover:bg-red-500/20 hover:text-red-400' : 'bg-gray-700 text-gray-400 hover:bg-green-500/20 hover:text-green-400' %>"
+        >
+          <%= section.enabled ? '👁️' : '👁️‍🗨️' %>
+        </button>
+      </div>
+    </div>
+  <% }); %>
+</div>
+
+<!-- Preview Button -->
+<div class="mt-8 flex gap-4">
+  <a href="/" target="_blank" class="px-6 py-3 bg-primary hover:bg-primary-dark rounded-xl font-medium transition">
+    👀 Ver Página
+  </a>
+  <a href="/admin" class="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl font-medium transition">
+    ← Voltar
+  </a>
+</div>
+
+<script>
+// Get current section order
+function getSectionOrder() {
+  return Array.from(document.querySelectorAll('.section-item')).map(el => el.dataset.id);
+}
+
+// Move section up/down
+async function moveSection(id, direction) {
+  const items = Array.from(document.querySelectorAll('.section-item'));
+  const currentIndex = items.findIndex(el => el.dataset.id === id);
+  
+  if (direction === 'up' && currentIndex > 0) {
+    items[currentIndex].parentNode.insertBefore(items[currentIndex], items[currentIndex - 1]);
+  } else if (direction === 'down' && currentIndex < items.length - 1) {
+    items[currentIndex].parentNode.insertBefore(items[currentIndex + 1], items[currentIndex]);
+  }
+  
+  await saveOrder();
+}
+
+// Toggle section visibility
+async function toggleSection(id, enabled) {
+  try {
+    const res = await fetch('/admin/layout/toggle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, enabled })
+    });
+    
+    if (res.ok) {
+      location.reload();
+    }
+  } catch (err) {
+    console.error('Toggle failed:', err);
+  }
+}
+
+// Save new order
+async function saveOrder() {
+  const order = getSectionOrder();
+  
+  try {
+    const res = await fetch('/admin/layout/reorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order })
+    });
+    
+    if (res.ok) {
+      // Show success toast
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-4 right-4 px-4 py-2 bg-green-500 text-white rounded-lg animate-fade-in';
+      toast.textContent = '✓ Layout salvo!';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
+  } catch (err) {
+    console.error('Save failed:', err);
+  }
+}
+</script>

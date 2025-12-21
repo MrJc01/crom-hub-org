@@ -1,6 +1,5 @@
 {
   "version": "1.0.0",
-  
   "organization": {
     "name": "Hub.org Demo",
     "description": "Sistema de transparência e governança",
@@ -9,20 +8,23 @@
     "currency": "BRL",
     "locale": "pt-BR"
   },
-
   "modules": {
     "donations": {
       "enabled": true,
       "settings": {
-        "min_amount": 5.00,
-        "max_amount": 10000.00,
+        "min_amount": 5,
+        "max_amount": 10000,
         "allow_anonymous": true,
         "show_donor_handle": true,
         "show_amount": true,
-        "suggested_amounts": [10, 25, 50, 100]
+        "suggested_amounts": [
+          10,
+          25,
+          50,
+          100
+        ]
       }
     },
-
     "voting": {
       "enabled": true,
       "settings": {
@@ -40,7 +42,6 @@
         "duration_days": 7
       }
     },
-
     "transparency": {
       "enabled": true,
       "settings": {
@@ -49,7 +50,6 @@
         "dashboard_public": true
       }
     },
-
     "audit_log": {
       "enabled": true,
       "settings": {
@@ -62,12 +62,13 @@
           "EDIT_PROPOSAL",
           "CANCEL_VOTE",
           "REFUND_TRANSACTION",
-          "CHANGE_SETTINGS"
+          "CHANGE_SETTINGS",
+          "CHANGE_LAYOUT",
+          "CREATE_EXPENSE"
         ],
         "retention_days": 365
       }
     },
-
     "cron": {
       "enabled": false,
       "settings": {
@@ -78,12 +79,65 @@
       }
     }
   },
-
   "security": {
     "rate_limiting": {
       "enabled": true,
       "requests_per_minute": 60
     },
     "session_duration_hours": 168
+  },
+  "landing_page": {
+    "sections": [
+      {
+        "id": "donate",
+        "enabled": true,
+        "settings": {
+          "title": "Apoie o Projeto",
+          "subtitle": "Sua contribuição mantém o projeto vivo"
+        }
+      },
+      {
+        "id": "hero",
+        "enabled": true,
+        "settings": {
+          "title": "Transparência Radical",
+          "subtitle": "para Projetos que Importam",
+          "cta_primary": "Fazer Doação",
+          "cta_secondary": "Ver Finanças"
+        }
+      },
+      {
+        "id": "about",
+        "enabled": true,
+        "settings": {
+          "title": "O que é o Hub.org?",
+          "subtitle": "Uma plataforma focada em três pilares"
+        }
+      },
+      {
+        "id": "features",
+        "enabled": true,
+        "settings": {
+          "title": "Módulos Habilitados",
+          "subtitle": "Funcionalidades ativas nesta instância"
+        }
+      },
+      {
+        "id": "transparency",
+        "enabled": true,
+        "settings": {
+          "title": "Transparência Total",
+          "subtitle": "Todas as movimentações são públicas"
+        }
+      },
+      {
+        "id": "philosophy",
+        "enabled": true,
+        "settings": {
+          "title": "Foco em Transações, Não em Vaidade",
+          "badge": "Filosofia Anti-Social"
+        }
+      }
+    ]
   }
 }

@@ -1,0 +1,58 @@
+<div class="min-h-[calc(100vh-200px)] flex items-center justify-center py-20">
+  <div class="w-full max-w-md">
+    <div class="glass rounded-3xl p-8 border border-white/10">
+      <% if (typeof sent !== 'undefined' && sent) { %>
+        <!-- Success State -->
+        <div class="text-center animate-fade-in">
+          <div class="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center text-3xl mx-auto mb-6">
+            📩
+          </div>
+          <h2 class="text-2xl font-bold mb-4">Verifique seu Email</h2>
+          <p class="text-gray-400 mb-8">
+            Enviamos um link mágico para <span class="text-white font-medium"><%= typeof email !== 'undefined' ? email : '' %></span>.
+            Clique nele para entrar.
+          </p>
+          <a href="/login" class="text-primary hover:underline text-sm">Tentar outro email</a>
+        </div>
+      <% } else { %>
+        <!-- Login Form -->
+        <div class="text-center mb-8">
+          <h1 class="text-3xl font-bold mb-2">Login</h1>
+          <p class="text-gray-400">Entre sem senha usando apenas seu email.</p>
+        </div>
+
+        <form 
+          hx-post="/auth/login" 
+          hx-target="this" 
+          hx-swap="outerHTML"
+          class="space-y-6"
+        >
+          <% if (typeof error !== 'undefined' && error) { %>
+            <div class="p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-400 text-sm">
+              ⚠️ <%= error %>
+            </div>
+          <% } %>
+
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Email</label>
+            <input 
+              type="email" 
+              name="email" 
+              placeholder="seu@email.com"
+              required
+              class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder-gray-600 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
+            />
+          </div>
+
+          <button 
+            type="submit"
+            class="w-full py-4 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl transition flex items-center justify-center gap-2"
+          >
+            <span>✨</span>
+            <span>Enviar Link Mágico</span>
+          </button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+</div>

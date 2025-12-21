@@ -1,0 +1,88 @@
+<section id="transparencia" class="py-24 bg-slate-800/50">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">
+        <%= settings.title || 'Transparência Total' %>
+      </h2>
+      <p class="text-xl text-gray-400">
+        <%= settings.subtitle || 'Todas as movimentações são públicas' %>
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div class="glass rounded-2xl p-6 border border-white/10">
+        <p class="text-gray-400 text-sm mb-2">Saldo Disponível</p>
+        <p class="text-4xl font-bold">
+          <%= data.currency %> <%= data.balance.toLocaleString('pt-BR',
+          {minimumFractionDigits: 2}) %>
+        </p>
+      </div>
+      <div class="glass rounded-2xl p-6 border border-white/10">
+        <p class="text-gray-400 text-sm mb-2">Total Arrecadado</p>
+        <p class="text-4xl font-bold text-green-400">
+          +<%= data.currency %> <%= data.totalIn.toLocaleString('pt-BR',
+          {minimumFractionDigits: 2}) %>
+        </p>
+        <p class="text-sm text-gray-500 mt-1">
+          <%= data.donationCount %> doações
+        </p>
+      </div>
+      <div class="glass rounded-2xl p-6 border border-white/10">
+        <p class="text-gray-400 text-sm mb-2">Total Gasto</p>
+        <p class="text-4xl font-bold text-red-400">
+          -<%= data.currency %> <%= data.totalOut.toLocaleString('pt-BR',
+          {minimumFractionDigits: 2}) %>
+        </p>
+        <p class="text-sm text-gray-500 mt-1">
+          <%= data.expenseCount %> gastos
+        </p>
+      </div>
+    </div>
+
+    <div class="glass rounded-2xl border border-white/10 overflow-hidden">
+      <div
+        class="p-6 border-b border-white/10 flex items-center justify-between"
+      >
+        <h3 class="font-semibold text-lg">Últimas Transações</h3>
+        <a href="/transparency" class="text-primary hover:underline text-sm"
+          >Ver todas →</a
+        >
+      </div>
+      <div class="divide-y divide-white/5">
+        <% if (data.transactions.length === 0) { %>
+        <div class="p-8 text-center text-gray-400">
+          Nenhuma transação ainda. Seja o primeiro a doar!
+        </div>
+        <% } else { %> <% data.transactions.slice(0, 5).forEach(function(tx) {
+        %>
+        <div
+          class="p-4 flex items-center justify-between hover:bg-white/5 transition"
+        >
+          <div class="flex items-center gap-4">
+            <div
+              class="w-10 h-10 rounded-full flex items-center justify-center text-lg <%= tx.type === 'IN' ? 'bg-green-500/20' : 'bg-red-500/20' %>"
+            >
+              <%= tx.automatic ? '🤖' : (tx.type === 'IN' ? '💰' : '📤') %>
+            </div>
+            <div>
+              <p class="font-medium">
+                <%= tx.type === 'IN' ? (tx.donor || 'Anônimo') : (tx.description
+                || 'Gasto') %>
+              </p>
+              <p class="text-sm text-gray-500">
+                <%= new Date(tx.createdAt).toLocaleDateString('pt-BR') %>
+              </p>
+            </div>
+          </div>
+          <p
+            class="font-bold <%= tx.type === 'IN' ? 'text-green-400' : 'text-red-400' %>"
+          >
+            <%= tx.type === 'IN' ? '+' : '-' %>R$ <%=
+            tx.amount.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %>
+          </p>
+        </div>
+        <% }); %> <% } %>
+      </div>
+    </div>
+  </div>
+</section>

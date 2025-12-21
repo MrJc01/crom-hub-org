@@ -8,8 +8,12 @@ import { fileURLToPath } from 'url';
 
 import { config } from './config/loader.js';
 import { connectDatabase, disconnectDatabase } from './db/client.js';
+import fastifyCookie from '@fastify/cookie';
+import fastifySession from '@fastify/session';
 import { registerFinanceRoutes } from './routes/finance.js';
 import { registerPageRoutes } from './routes/pages.js';
+import { registerAdminRoutes } from './routes/admin.js';
+import { registerAuthRoutes } from './routes/auth.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -25,6 +29,17 @@ const app = Fastify({
 // ============================================
 await app.register(cors, {
   origin: config.isDev ? true : config.appUrl,
+});
+
+await app.register(fastifyCookie);
+await app.register(fastifySession, {
+  secret: config.sessionSecret,
+  cookie: {
+    secure: !config.isDev,
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+  },
+  saveUninitialized: false,
 });
 
 // Static files
@@ -53,6 +68,8 @@ app.addContentTypeParser('application/x-www-form-urlencoded', { parseAs: 'string
 // Routes
 // ============================================
 registerFinanceRoutes(app);
+registerAuthRoutes(app);
+registerAdminRoutes(app);
 registerPageRoutes(app);
 
 // ============================================

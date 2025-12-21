@@ -8,9 +8,8 @@ import { config, isAdmin } from '../config/loader.js';
  */
 export async function adminMiddleware(request, reply) {
   // Em desenvolvimento, aceita header para facilitar testes
-  const email = config.isDev 
-    ? request.headers['x-admin-email'] || request.user?.email
-    : request.user?.email;
+  // Check session first, then dev header
+  const email = request.session?.user?.email || (config.isDev ? request.headers['x-admin-email'] : null);
 
   if (!email) {
     return reply.status(401).send({
@@ -36,9 +35,7 @@ export async function adminMiddleware(request, reply) {
  * Não bloqueia, apenas adiciona flag se for admin
  */
 export async function optionalAdminMiddleware(request, reply) {
-  const email = config.isDev 
-    ? request.headers['x-admin-email'] || request.user?.email
-    : request.user?.email;
+  const email = request.session?.user?.email || (config.isDev ? request.headers['x-admin-email'] : null);
 
   request.isAdmin = email ? isAdmin(email) : false;
   request.adminEmail = email || null;
