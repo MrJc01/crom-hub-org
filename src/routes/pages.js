@@ -54,7 +54,8 @@ async function dashboardPage(request, reply) {
     title: config.organization.name,
     organization: config.organization,
     modules: config.modules,
-    sections: config.landingPage.sections,
+    sections_order: config.landingPage.sections_order,
+    sections_data: config.landingPage.sections_data,
     data,
   });
 }

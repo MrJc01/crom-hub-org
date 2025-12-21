@@ -28,7 +28,10 @@ async function layoutEditor(request, reply) {
   return reply.view('pages/admin/layout.ejs', {
     title: 'Editor de Layout - Admin',
     organization: config.organization,
-    sections: config.landingPage.sections,
+    sections: config.landingPage.sections_order.map(id => ({
+      id,
+      ...config.landingPage.sections_data[id]
+    })),
     adminEmail: request.adminEmail,
   });
 }
@@ -48,25 +51,13 @@ async function reorderSections(request, reply) {
     const modulesContent = JSON.parse(readFileSync(MODULES_PATH, 'utf-8'));
     
     // Reorder sections based on new order
-    const currentSections = modulesContent.landing_page?.sections || [];
-    const sectionMap = new Map(currentSections.map(s => [s.id, s]));
-    
-    const newSections = order.map(id => sectionMap.get(id)).filter(Boolean);
-    
-    // Add any sections that weren't in the order (preserve them at end)
-    currentSections.forEach(s => {
-      if (!order.includes(s.id)) {
-        newSections.push(s);
-      }
-    });
-    
-    modulesContent.landing_page.sections = newSections;
+    modulesContent.landing_page.sections_order = order;
     
     // Write back to file
     writeFileSync(MODULES_PATH, JSON.stringify(modulesContent, null, 2));
     
     // Update in-memory config
-    config.landingPage.sections = newSections;
+    config.landingPage.sections_order = order;
     
     // Log action
     const adminUser = await findOrCreateUser(request.adminEmail);
@@ -77,7 +68,7 @@ async function reorderSections(request, reply) {
       details: { new_order: order },
     });
 
-    return reply.send({ success: true, sections: newSections });
+    return reply.send({ success: true, order });
   } catch (err) {
     console.error('Error reordering sections:', err);
     return reply.status(500).send({ error: err.message });
@@ -97,19 +88,17 @@ async function toggleSection(request, reply) {
   try {
     const modulesContent = JSON.parse(readFileSync(MODULES_PATH, 'utf-8'));
     
-    const section = modulesContent.landing_page?.sections?.find(s => s.id === id);
-    if (!section) {
+    if (modulesContent.landing_page?.sections_data?.[id]) {
+        modulesContent.landing_page.sections_data[id].enabled = enabled;
+    } else {
       return reply.status(404).send({ error: 'Section not found' });
     }
-    
-    section.enabled = enabled;
     
     writeFileSync(MODULES_PATH, JSON.stringify(modulesContent, null, 2));
     
     // Update in-memory config
-    const configSection = config.landingPage.sections.find(s => s.id === id);
-    if (configSection) {
-      configSection.enabled = enabled;
+    if (config.landingPage.sections_data[id]) {
+      config.landingPage.sections_data[id].enabled = enabled;
     }
     
     // Log action

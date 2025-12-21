@@ -1,6 +1,5 @@
-<% /* Dynamic Layout Engine - Loops through sections from config */ %> <%
-sections.forEach(function(section) { %> <% if (section.enabled) { %> <% try { %>
-<%- include('./partials/sections/' + section.id, { settings: section.settings ||
-{}, data, organization, modules }) %> <% } catch(e) { %>
-<!-- Section <%= section.id %> not found -->
-<% } %> <% } %> <% }); %>
+<% /* Dynamic Layout Engine - Loops through sections_order from config */ %> <%
+sections_order.forEach(function(sectionId) { %> <% const section =
+sections_data[sectionId]; %> <% if (section && section.enabled) { %> <%-
+include('../partials/sections/' + sectionId, { settings: section || {}, data,
+organization, modules }) %> <% } %> <% }); %>

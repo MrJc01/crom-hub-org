@@ -87,57 +87,47 @@
     "session_duration_hours": 168
   },
   "landing_page": {
-    "sections": [
-      {
-        "id": "donate",
+    "sections_order": [
+      "donate",
+      "hero",
+      "about",
+      "features",
+      "transparency",
+      "philosophy"
+    ],
+    "sections_data": {
+      "hero": {
         "enabled": true,
-        "settings": {
-          "title": "Apoie o Projeto",
-          "subtitle": "Sua contribuição mantém o projeto vivo"
-        }
+        "title": "Transparência Radical",
+        "subtitle": "para Projetos que Importam",
+        "cta_primary": "Fazer Doação",
+        "cta_secondary": "Ver Finanças"
       },
-      {
-        "id": "hero",
+      "about": {
         "enabled": true,
-        "settings": {
-          "title": "Transparência Radical",
-          "subtitle": "para Projetos que Importam",
-          "cta_primary": "Fazer Doação",
-          "cta_secondary": "Ver Finanças"
-        }
+        "title": "O que é o Hub.org?",
+        "subtitle": "Uma plataforma focada em três pilares"
       },
-      {
-        "id": "about",
-        "enabled": true,
-        "settings": {
-          "title": "O que é o Hub.org?",
-          "subtitle": "Uma plataforma focada em três pilares"
-        }
+      "features": {
+        "enabled": false,
+        "title": "Módulos Habilitados",
+        "subtitle": "Funcionalidades ativas nesta instância"
       },
-      {
-        "id": "features",
+      "transparency": {
         "enabled": true,
-        "settings": {
-          "title": "Módulos Habilitados",
-          "subtitle": "Funcionalidades ativas nesta instância"
-        }
+        "title": "Transparência Total",
+        "subtitle": "Todas as movimentações são públicas"
       },
-      {
-        "id": "transparency",
+      "donate": {
         "enabled": true,
-        "settings": {
-          "title": "Transparência Total",
-          "subtitle": "Todas as movimentações são públicas"
-        }
+        "title": "Apoie o Projeto",
+        "subtitle": "Sua contribuição mantém o projeto vivo"
       },
-      {
-        "id": "philosophy",
+      "philosophy": {
         "enabled": true,
-        "settings": {
-          "title": "Foco em Transações, Não em Vaidade",
-          "badge": "Filosofia Anti-Social"
-        }
+        "title": "Foco em Transações, Não em Vaidade",
+        "badge": "Filosofia Anti-Social"
       }
-    ]
+    }
   }
 }

@@ -174,12 +174,12 @@ const modulesSchema = z.object({
 
   landing_page: z
     .object({
-      sections: z.array(
+      sections_order: z.array(z.string()),
+      sections_data: z.record(
         z.object({
-          id: z.string().min(1),
           enabled: z.boolean().default(true),
-          settings: z.record(z.any()).optional(),
-        })
+          // Allow any other settings properties
+        }).catchall(z.any())
       ),
     })
     .optional(),
@@ -310,7 +310,7 @@ export const config = {
   modules: modules.modules,
   security: modules.security,
   version: modules.version,
-  landingPage: modules.landing_page || { sections: [] },
+  landingPage: modules.landing_page || { sections_order: [], sections_data: {} },
 };
 
 export function isAdmin(email) {

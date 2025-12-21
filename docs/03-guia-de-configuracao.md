@@ -321,9 +321,35 @@ O arquivo `modules.json` contém **configurações do sistema** que podem ser al
         "url": "/docs"
       }
     ]
+  },
+
+  "landing_page": {
+    "sections_order": [
+      "hero",
+      "about",
+      "features",
+      "transparency",
+      "donate",
+      "philosophy"
+    ],
+    "sections_data": {
+      "hero": {
+        "enabled": true,
+        "title": "Transparência Radical",
+        "subtitle": "para Projetos que Importam"
+      }
+    }
   }
 }
 ```
+
+### Configuração de Layout
+
+O layout da página inicial é controlado via `landing_page` no `modules.json`.
+
+- **`sections_order`**: Array definindo a ordem de exibição das seções.
+- **`sections_data`**: Configurações específicas (título, subtítulo, habilitado) para cada seção.
+  Isso permite reordenar seções facilmente apenas alterando o array.
 
 ### Acessando Configurações via UI
 

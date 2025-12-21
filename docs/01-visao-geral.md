@@ -114,6 +114,10 @@ O Hub.org é modular por natureza. Ative ou desative funcionalidades através do
       "enabled": true,
       "public": true
     }
+  },
+  "landing_page": {
+    "sections_order": ["hero", "features", "donate"],
+    "sections_data": { ... }
   }
 }
 ```
