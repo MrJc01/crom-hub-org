@@ -14,8 +14,9 @@ function generateToken() {
 /**
  * Request a login magic link
  * @param {string} email User email
+ * @param {string} returnUrl Optional URL to redirect after login
  */
-export async function requestLogin(email) {
+export async function requestLogin(email, returnUrl = null) {
   const user = await findOrCreateUser(email);
   
   // Create token
@@ -32,7 +33,10 @@ export async function requestLogin(email) {
   });
 
   // Send email
-  const link = `${config.appUrl}/auth/verify?token=${token}`;
+  let link = `${config.appUrl}/auth/verify?token=${token}`;
+  if (returnUrl) {
+    link += `&returnUrl=${encodeURIComponent(returnUrl)}`;
+  }
   
   await sendEmail({
     to: email,

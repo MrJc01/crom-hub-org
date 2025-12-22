@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,6 +13,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: "class",
         theme: {
           extend: {
             colors: {
@@ -43,6 +44,9 @@
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
       }
+      .light .glass {
+        background: rgba(0, 0, 0, 0.03);
+      }
       .animate-float {
         animation: float 6s ease-in-out infinite;
       }
@@ -60,9 +64,13 @@
       }
     </style>
   </head>
-  <body class="bg-slate-900 text-white">
+  <body
+    class="bg-slate-900 text-white dark:bg-slate-900 dark:text-white transition-colors"
+  >
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10">
+    <nav
+      class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10 dark:border-white/10"
+    >
       <div
         class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"
       >
@@ -78,15 +86,11 @@
           <a href="#sobre" class="text-gray-300 hover:text-white transition"
             >Sobre</a
           >
-          <a
-            href="#funcionalidades"
-            class="text-gray-300 hover:text-white transition"
-            >Funcionalidades</a
+          <a href="/updates" class="text-gray-300 hover:text-white transition"
+            >Updates</a
           >
-          <a
-            href="#transparencia"
-            class="text-gray-300 hover:text-white transition"
-            >Transparência</a
+          <a href="/voting" class="text-gray-300 hover:text-white transition"
+            >Votações</a
           >
           <a href="#doar" class="text-gray-300 hover:text-white transition"
             >Doar</a
@@ -95,12 +99,22 @@
             >Status</a
           >
         </div>
-        <a
-          href="#doar"
-          class="px-4 py-2 bg-primary hover:bg-primary-dark rounded-lg font-medium transition"
-        >
-          Doar Agora
-        </a>
+        <div class="flex items-center gap-4">
+          <!-- Theme Toggle -->
+          <button
+            onclick="toggleTheme()"
+            class="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition"
+            title="Alternar tema"
+          >
+            <span id="theme-icon">🌙</span>
+          </button>
+          <a
+            href="#doar"
+            class="px-4 py-2 bg-primary hover:bg-primary-dark rounded-lg font-medium transition"
+          >
+            Doar Agora
+          </a>
+        </div>
       </div>
     </nav>
 
@@ -131,13 +145,13 @@
                 <a href="#sobre" class="hover:text-white transition">Sobre</a>
               </li>
               <li>
-                <a href="#funcionalidades" class="hover:text-white transition"
-                  >Funcionalidades</a
+                <a href="/updates" class="hover:text-white transition"
+                  >Updates</a
                 >
               </li>
               <li>
-                <a href="#transparencia" class="hover:text-white transition"
-                  >Transparência</a
+                <a href="/voting" class="hover:text-white transition"
+                  >Votações</a
                 >
               </li>
               <li>
@@ -181,6 +195,32 @@
     </footer>
 
     <script>
+      // Theme management
+      function getTheme() {
+        return localStorage.getItem("theme") || "dark";
+      }
+
+      function setTheme(theme) {
+        localStorage.setItem("theme", theme);
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark");
+          document.documentElement.classList.remove("light");
+          document.getElementById("theme-icon").textContent = "🌙";
+        } else {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.classList.add("light");
+          document.getElementById("theme-icon").textContent = "☀️";
+        }
+      }
+
+      function toggleTheme() {
+        setTheme(getTheme() === "dark" ? "light" : "dark");
+      }
+
+      // Initialize theme
+      setTheme(getTheme());
+
+      // HTMX animation
       document.body.addEventListener("htmx:afterSwap", function (evt) {
         evt.detail.target.classList.add("animate-pulse");
         setTimeout(

@@ -29,16 +29,46 @@ graph TB
 
 Gerencia doações, gastos e metas de arrecadação.
 
-### Fluxo de Doação
+### Fluxo de Doação via Stripe Checkout
 
 ```mermaid
 sequenceDiagram
-    Doador->>Hub.org: Clica "Doar"
-    Hub.org->>Stripe: Cria sessão
-    Stripe-->>Doador: Checkout
-    Doador->>Stripe: Paga
-    Stripe->>Hub.org: Webhook success
-    Hub.org->>DB: INSERT transaction
+    Doador->>Hub.org: Clica "Doar" + valor
+    Hub.org->>Stripe: createCheckoutSession()
+    Note right of Stripe: metadata: handle, message
+    Stripe-->>Doador: Redirect to Checkout
+    Doador->>Stripe: Paga (cartão)
+    Stripe->>Hub.org: POST /webhooks/stripe
+    Note right of Hub.org: checkout.session.completed
+    Hub.org->>DB: INSERT transaction (IN)
+    Hub.org->>AuditLog: STRIPE_PAYMENT
+```
+
+### Implementação
+
+```javascript
+// stripeService.js
+const session = await stripe.checkout.sessions.create({
+  mode: 'payment',
+  line_items: [{ price_data: {...}, quantity: 1 }],
+  metadata: { handle, message },
+  success_url: '/donate/success',
+  cancel_url: '/#donate',
+});
+```
+
+**Webhook Handler:**
+
+```javascript
+// POST /webhooks/stripe
+if (event.type === "checkout.session.completed") {
+  const { metadata, amount_total } = session;
+  await createDonation({
+    amount: amount_total / 100,
+    donorHandle: metadata.handle,
+    message: metadata.message,
+  });
+}
 ```
 
 ### Configurações
@@ -50,6 +80,14 @@ sequenceDiagram
 | `allow_anonymous`    | Permite doações sem login |
 | `goal.enabled`       | Habilita barra de meta    |
 | `goal.target_amount` | Valor alvo                |
+
+### Variáveis de Ambiente
+
+```bash
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PUBLISHABLE_KEY=pk_live_...
+```
 
 ---
 
@@ -219,6 +257,53 @@ async log({ action, adminHandle, target, details }) {
   });
 }
 ```
+
+---
+
+## 5. Módulo de Webhooks
+
+Recebe notificações externas de provedores (Stripe, GitHub, etc.) para automações.
+
+### Fluxo de Webhook
+
+```mermaid
+sequenceDiagram
+    ExternalService->>Hub.org: POST /webhooks/:provider
+    Hub.org->>Hub.org: Verify signature
+    Hub.org->>DB: Process event
+    Hub.org->>AuditLog: Log action
+    Hub.org-->>ExternalService: 200 OK
+```
+
+### Provedores Suportados
+
+| Provider | Endpoint            | Eventos                    |
+| -------- | ------------------- | -------------------------- |
+| Stripe   | `/webhooks/stripe`  | `payment_intent.succeeded` |
+| GitHub   | `/webhooks/github`  | `release.published`        |
+| Generic  | `/webhooks/generic` | Customizável               |
+
+### Exemplo: Doação via Stripe
+
+```json
+// POST /webhooks/stripe
+{
+  "type": "payment_intent.succeeded",
+  "data": {
+    "object": {
+      "id": "pi_xxx",
+      "amount": 5000,
+      "description": "Doação via Stripe"
+    }
+  }
+}
+```
+
+**Resultado:**
+
+- Transação de entrada registrada
+- Audit log atualizado
+- Dashboard reflete novo saldo
 
 ---
 

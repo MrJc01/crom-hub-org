@@ -1,5 +1,7 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
 import view from '@fastify/view';
 import fastifyStatic from '@fastify/static';
 import ejs from 'ejs';
@@ -14,6 +16,8 @@ import { registerFinanceRoutes } from './routes/finance.js';
 import { registerPageRoutes } from './routes/pages.js';
 import { registerAdminRoutes } from './routes/admin.js';
 import { registerAuthRoutes } from './routes/auth.js';
+import { registerWebhookRoutes } from './routes/webhooks.js';
+import { registerCronRoutes } from './routes/cron.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -21,7 +25,25 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // Fastify Instance
 // ============================================
 const app = Fastify({
-  logger: config.isDev,
+  logger: config.isDev ? true : {
+    level: 'info',
+    // Omit sensitive data in production
+    redact: ['req.headers.authorization', 'req.headers.cookie'],
+  },
+});
+
+// ============================================
+// Security Plugins
+// ============================================
+await app.register(helmet, {
+  contentSecurityPolicy: false, // Disabled for CDN scripts (Tailwind, HTMX)
+});
+
+await app.register(rateLimit, {
+  max: 100,
+  timeWindow: '1 minute',
+  // Stricter limits for auth endpoints
+  keyGenerator: (request) => request.ip,
 });
 
 // ============================================
@@ -70,6 +92,8 @@ app.addContentTypeParser('application/x-www-form-urlencoded', { parseAs: 'string
 registerFinanceRoutes(app);
 registerAuthRoutes(app);
 registerAdminRoutes(app);
+registerWebhookRoutes(app);
+registerCronRoutes(app);
 registerPageRoutes(app);
 
 // ============================================

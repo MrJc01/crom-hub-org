@@ -8,6 +8,13 @@
     "currency": "BRL",
     "locale": "pt-BR"
   },
+  "theme": {
+    "default": "dark"
+  },
+  "notifications": {
+    "discord_webhook": "",
+    "slack_webhook": ""
+  },
   "modules": {
     "donations": {
       "enabled": true,
@@ -70,11 +77,28 @@
       }
     },
     "cron": {
-      "enabled": false,
+      "enabled": true,
       "settings": {
         "auto_payments": {
-          "enabled": false,
-          "payments": []
+          "enabled": true,
+          "payments": [
+            {
+              "id": "hosting",
+              "description": "Servidor DigitalOcean",
+              "amount": 50.00,
+              "currency": "BRL",
+              "recipient": "DigitalOcean",
+              "category": "infrastructure"
+            },
+            {
+              "id": "domain",
+              "description": "Domínio hub.org",
+              "amount": 12.00,
+              "currency": "BRL",
+              "recipient": "Cloudflare",
+              "category": "infrastructure"
+            }
+          ]
         }
       }
     }
@@ -91,6 +115,7 @@
       "donate",
       "hero",
       "about",
+      "updates",
       "features",
       "transparency",
       "philosophy"
@@ -107,6 +132,11 @@
         "enabled": true,
         "title": "O que é o Hub.org?",
         "subtitle": "Uma plataforma focada em três pilares"
+      },
+      "updates": {
+        "enabled": true,
+        "title": "Últimas Atualizações",
+        "subtitle": "Acompanhe o progresso do projeto"
       },
       "features": {
         "enabled": false,

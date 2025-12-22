@@ -1,0 +1,162 @@
+<main class="pt-24 pb-12">
+  <div class="max-w-4xl mx-auto px-6">
+    <!-- Header -->
+    <div class="mb-12 text-center">
+      <span
+        class="inline-block px-3 py-1 rounded-full bg-primary/20 text-primary text-sm font-medium mb-4"
+      >
+        🗳️ Governança
+      </span>
+      <h1 class="text-4xl font-bold mb-4">Propostas e Votações</h1>
+      <p class="text-gray-400">Participe das decisões do projeto</p>
+    </div>
+
+    <!-- Active Proposals -->
+    <div class="space-y-6">
+      <% if (proposals && proposals.length > 0) { %> <%
+      proposals.forEach(function(proposal) { %>
+      <div
+        class="glass rounded-xl p-6 border border-white/10"
+        id="proposal-<%= proposal.id %>"
+      >
+        <!-- Header -->
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h3 class="text-xl font-semibold mb-1"><%= proposal.title %></h3>
+            <div class="flex items-center gap-3 text-sm text-gray-500">
+              <span
+                >por @<%= proposal.author?.handle || proposal.authorHandle
+                %></span
+              >
+              <span>•</span>
+              <span
+                >Termina em <%= Math.ceil((new Date(proposal.endsAt) - new
+                Date()) / (1000 * 60 * 60 * 24)) %> dias</span
+              >
+            </div>
+          </div>
+          <span
+            class="px-3 py-1 rounded-full text-xs font-medium <%= proposal.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400' %>"
+          >
+            <%= proposal.status === 'active' ? 'Ativa' : proposal.status %>
+          </span>
+        </div>
+
+        <!-- Description -->
+        <% if (proposal.description) { %>
+        <p class="text-gray-400 mb-6"><%= proposal.description %></p>
+        <% } %>
+
+        <!-- Vote Counts -->
+        <div class="flex items-center gap-6 mb-6">
+          <div class="flex items-center gap-2">
+            <span class="text-green-400 text-lg">👍</span>
+            <span class="font-semibold"><%= proposal.yesCount %></span>
+            <span class="text-gray-500">Sim</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-red-400 text-lg">👎</span>
+            <span class="font-semibold"><%= proposal.noCount %></span>
+            <span class="text-gray-500">Não</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-gray-400 text-lg">⏸️</span>
+            <span class="font-semibold"><%= proposal.abstainCount %></span>
+            <span class="text-gray-500">Abstenção</span>
+          </div>
+        </div>
+
+        <!-- Voting Form -->
+        <div class="border-t border-white/10 pt-4">
+          <% if (userHandle) { %>
+          <!-- Logged in user -->
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-gray-400">Seu voto:</span>
+            <form
+              hx-post="/voting/<%= proposal.id %>/vote"
+              hx-swap="outerHTML"
+              hx-target="#proposal-<%= proposal.id %>"
+              class="flex gap-2"
+            >
+              <button
+                name="vote"
+                value="yes"
+                class="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition"
+              >
+                👍 Sim
+              </button>
+              <button
+                name="vote"
+                value="no"
+                class="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition"
+              >
+                👎 Não
+              </button>
+              <button
+                name="vote"
+                value="abstain"
+                class="px-4 py-2 bg-gray-500/20 hover:bg-gray-500/30 text-gray-400 rounded-lg transition"
+              >
+                ⏸️ Abstenção
+              </button>
+            </form>
+          </div>
+          <% } else { %>
+          <!-- Anonymous user - show email field -->
+          <div id="vote-form-<%= proposal.id %>">
+            <form
+              hx-post="/auth/vote-request"
+              hx-swap="innerHTML"
+              hx-target="#vote-form-<%= proposal.id %>"
+              class="flex items-center gap-3"
+            >
+              <input
+                type="hidden"
+                name="proposalId"
+                value="<%= proposal.id %>"
+              />
+              <input
+                type="hidden"
+                name="returnUrl"
+                value="/voting?proposal=<%= proposal.id %>"
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Seu e-mail para votar"
+                required
+                class="flex-1 px-4 py-2 rounded-lg bg-white/5 border border-white/10 focus:border-primary focus:outline-none"
+              />
+              <button
+                type="submit"
+                class="px-4 py-2 bg-primary hover:bg-primary-dark rounded-lg font-medium transition"
+              >
+                Participar
+              </button>
+            </form>
+            <p class="text-sm text-gray-500 mt-2">
+              Enviaremos um link para confirmar seu voto
+            </p>
+          </div>
+          <% } %>
+        </div>
+      </div>
+      <% }); %> <% } else { %>
+      <div class="glass rounded-xl p-8 border border-white/10 text-center">
+        <p class="text-gray-400 mb-4">Nenhuma proposta ativa no momento.</p>
+        <p class="text-sm text-gray-500">
+          Propostas são criadas pelos administradores para decisões importantes
+          do projeto.
+        </p>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- Back link -->
+    <div class="mt-8 text-center">
+      <a href="/" class="text-primary hover:underline"
+        >← Voltar para a página inicial</a
+      >
+    </div>
+  </div>
+</main>

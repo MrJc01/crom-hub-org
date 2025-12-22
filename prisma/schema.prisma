@@ -29,6 +29,7 @@ model User {
   votes        Vote[]
   proposals    Proposal[]
   tokens       AuthToken[]
+  updates      Update[]
 }
 
 // ============================================
@@ -137,4 +138,20 @@ model Setting {
   value     String   // JSON string
   updatedAt DateTime @default(now())
   updatedBy String?  // Admin handle
+}
+
+// ============================================
+// Updates (Blog/Changelog)
+// ============================================
+model Update {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String   // Markdown
+  type      String   @default("DONE") // DONE, IN_PROGRESS, PLANNED
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@index([type])
 }

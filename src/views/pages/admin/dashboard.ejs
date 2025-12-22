@@ -1,79 +1,306 @@
+<div class="mb-8 flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-bold mb-2">⚙️ Centro de Comando</h1>
+    <p class="text-gray-400">Bem-vindo, <%= adminEmail %></p>
+  </div>
+  <a href="/" class="text-sm text-gray-400 hover:text-white transition"
+    >← Voltar ao site</a
+  >
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+<!-- Tabs -->
 <div class="mb-8">
-  <h1 class="text-2xl font-bold mb-2">⚙️ Painel Administrativo</h1>
-  <p class="text-gray-400">Bem-vindo, <%= adminEmail %></p>
+  <div class="flex gap-2 border-b border-white/10">
+    <button
+      onclick="showTab('modules')"
+      id="tab-modules"
+      class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-primary text-primary"
+    >
+      📦 Módulos
+    </button>
+    <button
+      onclick="showTab('layout')"
+      id="tab-layout"
+      class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-white"
+    >
+      🎨 Layout
+    </button>
+    <button
+      onclick="showTab('updates')"
+      id="tab-updates"
+      class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-white"
+    >
+      📝 Updates
+    </button>
+    <button
+      onclick="showTab('proposals')"
+      id="tab-proposals"
+      class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-white"
+    >
+      🗳️ Propostas
+    </button>
+  </div>
 </div>
 
-<!-- Quick Stats -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-  <a
-    href="/admin/layout"
-    class="glass rounded-2xl p-6 border border-white/10 hover:border-primary/50 transition group"
-  >
-    <div class="flex items-center gap-4">
-      <div
-        class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-2xl"
-      >
-        🎨
+<!-- Tab: Modules -->
+<div id="panel-modules" class="tab-panel">
+  <div class="glass rounded-xl p-6 border border-white/10">
+    <h3 class="font-semibold mb-4">Gerenciar Módulos</h3>
+    <div class="space-y-4">
+      <% Object.entries(modules).forEach(([key, mod]) => { %>
+      <div class="flex items-center justify-between p-4 rounded-lg bg-white/5">
+        <div>
+          <span class="font-medium"
+            ><%= key.charAt(0).toUpperCase() + key.slice(1) %></span
+          >
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" class="sr-only peer" <%= mod.enabled ?
+          'checked' : '' %> hx-post="/admin/modules/toggle" hx-vals='{"module":
+          "<%= key %>", "enabled": <%= !mod.enabled %>}' hx-swap="none"
+          hx-on::after-request="showToast('Módulo atualizado!')" >
+          <div
+            class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"
+          ></div>
+        </label>
       </div>
-      <div>
-        <h3 class="font-semibold group-hover:text-primary transition">
-          Editor de Layout
-        </h3>
-        <p class="text-sm text-gray-400">Reordene as seções da página</p>
-      </div>
-    </div>
-  </a>
-
-  <a
-    href="/status"
-    class="glass rounded-2xl p-6 border border-white/10 hover:border-primary/50 transition group"
-  >
-    <div class="flex items-center gap-4">
-      <div
-        class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center text-2xl"
-      >
-        📋
-      </div>
-      <div>
-        <h3 class="font-semibold group-hover:text-primary transition">
-          Audit Log
-        </h3>
-        <p class="text-sm text-gray-400">Visualizar ações administrativas</p>
-      </div>
-    </div>
-  </a>
-
-  <a
-    href="/"
-    class="glass rounded-2xl p-6 border border-white/10 hover:border-primary/50 transition group"
-  >
-    <div class="flex items-center gap-4">
-      <div
-        class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-2xl"
-      >
-        🏠
-      </div>
-      <div>
-        <h3 class="font-semibold group-hover:text-primary transition">
-          Ver Site
-        </h3>
-        <p class="text-sm text-gray-400">Acessar página pública</p>
-      </div>
-    </div>
-  </a>
-</div>
-
-<!-- Info -->
-<div class="glass rounded-xl p-6 border border-white/10">
-  <h3 class="font-semibold mb-4">Informações do Sistema</h3>
-  <div class="grid grid-cols-2 gap-4 text-sm">
-    <div>
-      <span class="text-gray-400">Organização:</span>
-      <span class="ml-2"><%= organization.name %></span>
-    </div>
-    <div>
-      <span class="text-gray-400">Moeda:</span>
-      <span class="ml-2"><%= organization.currency || 'BRL' %></span>
+      <% }); %>
     </div>
   </div>
 </div>
+
+<!-- Tab: Layout -->
+<div id="panel-layout" class="tab-panel hidden">
+  <div class="glass rounded-xl p-6 border border-white/10">
+    <h3 class="font-semibold mb-4">Editor de Layout</h3>
+    <p class="text-gray-400 mb-4">
+      Arraste para reordenar as seções da Landing Page
+    </p>
+    <div id="sections-list" class="space-y-2">
+      <% sections.forEach((section, index) => { %>
+      <div
+        class="flex items-center gap-4 p-4 rounded-lg bg-white/5 cursor-move"
+        data-id="<%= section.id %>"
+      >
+        <span class="text-gray-500">☰</span>
+        <div class="flex-1">
+          <span class="font-medium"><%= section.title || section.id %></span>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" class="sr-only peer" <%= section.enabled ?
+          'checked' : '' %> hx-post="/admin/layout/toggle" hx-vals='{"id": "<%=
+          section.id %>", "enabled": <%= !section.enabled %>}' hx-swap="none"
+          hx-on::after-request="showToast('Seção atualizada!')" >
+          <div
+            class="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"
+          ></div>
+        </label>
+      </div>
+      <% }); %>
+    </div>
+    <button
+      onclick="saveOrder()"
+      class="mt-4 px-4 py-2 bg-primary hover:bg-primary-dark rounded-lg text-sm font-medium transition"
+    >
+      Salvar Ordem
+    </button>
+  </div>
+</div>
+
+<!-- Tab: Updates -->
+<div id="panel-updates" class="tab-panel hidden">
+  <div class="glass rounded-xl p-6 border border-white/10">
+    <h3 class="font-semibold mb-4">Criar Atualização</h3>
+    <form
+      hx-post="/admin/updates"
+      hx-swap="none"
+      hx-on::after-request="this.reset(); showToast('Atualização publicada!')"
+    >
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Título</label>
+          <input
+            type="text"
+            name="title"
+            required
+            class="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 focus:border-primary focus:outline-none"
+          />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Tipo</label>
+          <select
+            name="type"
+            class="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 focus:border-primary focus:outline-none"
+          >
+            <option value="DONE">✅ Concluído</option>
+            <option value="IN_PROGRESS">⏳ Em Progresso</option>
+            <option value="PLANNED">📅 Planejado</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-1"
+            >Conteúdo (Markdown)</label
+          >
+          <textarea
+            name="content"
+            rows="4"
+            required
+            class="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 focus:border-primary focus:outline-none font-mono text-sm"
+          ></textarea>
+        </div>
+        <button
+          type="submit"
+          class="px-4 py-2 bg-primary hover:bg-primary-dark rounded-lg font-medium transition"
+        >
+          Publicar Atualização
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tab: Proposals -->
+<div id="panel-proposals" class="tab-panel hidden">
+  <div class="glass rounded-xl p-6 border border-white/10">
+    <h3 class="font-semibold mb-4">Gerenciar Propostas</h3>
+    <% if (proposals && proposals.length > 0) { %>
+    <div class="space-y-4">
+      <% proposals.forEach(proposal => { %>
+      <div class="flex items-center justify-between p-4 rounded-lg bg-white/5">
+        <div>
+          <span class="font-medium"><%= proposal.title %></span>
+          <span
+            class="ml-2 text-xs px-2 py-0.5 rounded-full <%= proposal.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400' %>"
+          >
+            <%= proposal.status %>
+          </span>
+          <div class="text-sm text-gray-500 mt-1">
+            👍 <%= proposal.yesCount %> | 👎 <%= proposal.noCount %>
+          </div>
+        </div>
+        <% if (proposal.status === 'active' || proposal.status === 'voting') {
+        %>
+        <button
+          hx-post="/admin/proposals/<%= proposal.id %>/close"
+          hx-swap="none"
+          hx-confirm="Tem certeza que deseja encerrar esta proposta?"
+          hx-on::after-request="showToast('Proposta encerrada!'); location.reload()"
+          class="px-3 py-1 text-sm bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-lg transition"
+        >
+          Encerrar
+        </button>
+        <% } %>
+      </div>
+      <% }); %>
+    </div>
+    <% } else { %>
+    <p class="text-gray-400">Nenhuma proposta ativa.</p>
+    <% } %>
+  </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+  <div class="glass rounded-xl p-6 border border-white/10">
+    <div class="text-3xl font-bold text-primary">
+      <%= stats.balance.toFixed(2) %>
+    </div>
+    <div class="text-sm text-gray-400">
+      Saldo (<%= organization.currency || 'BRL' %>)
+    </div>
+  </div>
+  <div class="glass rounded-xl p-6 border border-white/10">
+    <div class="text-3xl font-bold text-green-400"><%= stats.donations %></div>
+    <div class="text-sm text-gray-400">Doações</div>
+  </div>
+  <div class="glass rounded-xl p-6 border border-white/10">
+    <div class="text-3xl font-bold text-yellow-400"><%= stats.proposals %></div>
+    <div class="text-sm text-gray-400">Propostas Ativas</div>
+  </div>
+</div>
+
+<script>
+  function showTab(name) {
+    // Hide all panels
+    document
+      .querySelectorAll(".tab-panel")
+      .forEach((p) => p.classList.add("hidden"));
+    // Deactivate all tabs
+    document.querySelectorAll(".tab-btn").forEach((t) => {
+      t.classList.remove("border-primary", "text-primary");
+      t.classList.add("border-transparent", "text-gray-400");
+    });
+    // Show selected panel
+    document.getElementById("panel-" + name).classList.remove("hidden");
+    // Activate selected tab
+    const tab = document.getElementById("tab-" + name);
+    tab.classList.add("border-primary", "text-primary");
+    tab.classList.remove("border-transparent", "text-gray-400");
+  }
+
+  function showToast(message, type = "success") {
+    const container = document.getElementById("toast-container");
+    const toast = document.createElement("div");
+    toast.className = `px-4 py-3 rounded-lg shadow-lg ${
+      type === "success" ? "bg-green-500" : "bg-red-500"
+    } text-white text-sm animate-fade-in`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transition = "opacity 0.3s";
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  function saveOrder() {
+    const items = document.querySelectorAll("#sections-list > div");
+    const order = Array.from(items).map((item) => item.dataset.id);
+
+    fetch("/admin/layout/reorder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ order }),
+    }).then(() => showToast("Ordem salva com sucesso!"));
+  }
+
+  // Simple drag and drop for sections
+  let draggedItem = null;
+  document.querySelectorAll("#sections-list > div").forEach((item) => {
+    item.draggable = true;
+    item.addEventListener("dragstart", () => (draggedItem = item));
+    item.addEventListener("dragover", (e) => e.preventDefault());
+    item.addEventListener("drop", () => {
+      if (draggedItem !== item) {
+        const list = document.getElementById("sections-list");
+        const items = [...list.children];
+        const draggedIdx = items.indexOf(draggedItem);
+        const targetIdx = items.indexOf(item);
+        if (draggedIdx < targetIdx) {
+          item.parentNode.insertBefore(draggedItem, item.nextSibling);
+        } else {
+          item.parentNode.insertBefore(draggedItem, item);
+        }
+      }
+    });
+  });
+</script>
+
+<style>
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+</style>

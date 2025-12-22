@@ -4,6 +4,8 @@ import { getPublicLogs } from '../services/auditService.js';
 import { checkDatabaseHealth } from '../db/client.js';
 import { findOrCreateUser } from '../services/userService.js';
 import { donateSchema } from '../schemas/validation.js';
+import { getRecentUpdates } from '../services/updateService.js';
+import { getActiveProposals, castVote } from '../services/votingService.js';
 import ejs from 'ejs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -48,6 +50,7 @@ async function dashboardPage(request, reply) {
     expenseCount: summary.counts.expenses,
     goal: summary.goal,
     transactions: mappedTransactions,
+    updates: await getRecentUpdates(3),
   };
 
   return reply.view('pages/dashboard.ejs', {
@@ -61,7 +64,7 @@ async function dashboardPage(request, reply) {
 }
 
 /**
- * POST /donate - Handle donation (HTMX)
+ * POST /donate - Handle donation (HTMX or redirect to Stripe)
  */
 async function donateHandler(request, reply) {
   const body = request.body;
@@ -81,6 +84,32 @@ async function donateHandler(request, reply) {
   const { amount, message, email } = result.data;
 
   try {
+    // Try Stripe Checkout if configured
+    const { isStripeEnabled, createCheckoutSession } = await import('../services/stripeService.js');
+    
+    if (isStripeEnabled()) {
+      let handle = null;
+      if (email) {
+        const donor = await findOrCreateUser(email);
+        handle = donor.handle;
+      }
+
+      const session = await createCheckoutSession({
+        amount,
+        handle,
+        message,
+        email,
+        successUrl: `${config.appUrl}/donate/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${config.appUrl}/#donate`,
+      });
+
+      // Return redirect for HTMX
+      return reply
+        .header('HX-Redirect', session.url)
+        .send({ redirect: session.url });
+    }
+
+    // Fallback: Direct donation (dev mode without Stripe)
     let donor = null;
     let donorHandle = null;
 
@@ -160,9 +189,80 @@ async function auditLogPage(request, reply) {
 /**
  * Register page routes
  */
+/**
+ * GET /updates - Updates/changelog page
+ */
+async function updatesPage(request, reply) {
+  const updates = await getRecentUpdates(20);
+  
+  return reply.view('pages/updates.ejs', {
+    title: 'Atualizações',
+    organization: config.organization,
+    updates,
+  });
+}
+
+/**
+ * Register page routes
+ */
+/**
+ * GET /voting - Voting page
+ */
+async function votingPage(request, reply) {
+  const proposals = await getActiveProposals();
+  const userHandle = request.session?.user?.handle || null;
+  
+  return reply.view('pages/voting.ejs', {
+    title: 'Votações',
+    organization: config.organization,
+    proposals,
+    userHandle,
+  });
+}
+
+/**
+ * POST /voting/:id/vote - Cast a vote
+ */
+async function voteHandler(request, reply) {
+  const { id } = request.params;
+  const { vote } = request.body;
+  const userHandle = request.session?.user?.handle;
+  
+  if (!userHandle) {
+    return reply.status(401).send({ error: 'Autenticação necessária' });
+  }
+  
+  try {
+    await castVote({ proposalId: parseInt(id), userHandle, vote });
+    
+    // Return updated proposal card
+    const proposals = await getActiveProposals();
+    const proposal = proposals.find(p => p.id === parseInt(id));
+    if (!proposal) {
+      return reply.status(404).send({ error: 'Proposta não encontrada' });
+    }
+    
+    return reply.view('pages/voting.ejs', {
+      title: 'Votações',
+      organization: config.organization,
+      proposals,
+      userHandle,
+      success: 'Voto registrado com sucesso!',
+    });
+  } catch (err) {
+    return reply.status(400).send({ error: err.message });
+  }
+}
+
+/**
+ * Register page routes
+ */
 export function registerPageRoutes(app) {
   app.get('/', dashboardPage);
   app.post('/donate', donateHandler);
   app.get('/transparency', transparencyPage);
   app.get('/status', auditLogPage);
+  app.get('/updates', updatesPage);
+  app.get('/voting', votingPage);
+  app.post('/voting/:id/vote', voteHandler);
 }

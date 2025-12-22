@@ -1,10 +1,11 @@
 import { prisma } from '../db/client.js';
 import { config } from '../config/loader.js';
+import { notifyDonation } from './notificationService.js';
 
 /**
  * Create a donation (IN transaction)
  */
-export async function createDonation({ amount, message, donorId, donorHandle }) {
+export async function createDonation({ amount, message, donorId, donorHandle, externalId }) {
   const donationConfig = config.modules.donations?.settings;
   
   // Validate amount against config
@@ -25,11 +26,18 @@ export async function createDonation({ amount, message, donorId, donorHandle }) 
       donorId: donorId || null,
       donorHandle: donorHandle || null,
       message: message || null,
+      externalId: externalId || null,
       automatic: false,
     },
   });
 
   console.log(`💰 Doação recebida: R$ ${amount.toFixed(2)}${donorHandle ? ` de ${donorHandle}` : ' (anônimo)'}`);
+  
+  // Send notification (async, don't block)
+  notifyDonation({ amount, donorHandle, message }).catch(err => 
+    console.error('[Notification] Error:', err.message)
+  );
+
   return transaction;
 }
 

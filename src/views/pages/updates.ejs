@@ -1,0 +1,72 @@
+<main class="pt-24 pb-12">
+  <div class="max-w-4xl mx-auto px-6">
+    <!-- Header -->
+    <div class="mb-12 text-center">
+      <span
+        class="inline-block px-3 py-1 rounded-full bg-primary/20 text-primary text-sm font-medium mb-4"
+      >
+        📝 Diário de Bordo
+      </span>
+      <h1 class="text-4xl font-bold mb-4">Atualizações do Projeto</h1>
+      <p class="text-gray-400">
+        Acompanhe o progresso e as conquistas do projeto
+      </p>
+    </div>
+
+    <!-- Timeline -->
+    <div class="relative">
+      <!-- Timeline line -->
+      <div
+        class="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-purple-500 to-transparent"
+      ></div>
+
+      <% if (updates && updates.length > 0) { %> <%
+      updates.forEach(function(update, index) { %>
+      <div class="relative pl-12 pb-12">
+        <!-- Timeline dot -->
+        <div
+          class="absolute left-2 w-5 h-5 rounded-full border-4 border-slate-900 <%= update.type === 'DONE' ? 'bg-green-500' : update.type === 'IN_PROGRESS' ? 'bg-yellow-500' : 'bg-blue-500' %>"
+        ></div>
+
+        <!-- Content card -->
+        <div class="glass rounded-xl p-6 border border-white/10">
+          <div class="flex items-center gap-3 mb-3">
+            <span
+              class="px-2 py-0.5 rounded text-xs font-medium <%= update.type === 'DONE' ? 'bg-green-500/20 text-green-400' : update.type === 'IN_PROGRESS' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400' %>"
+            >
+              <%= update.type === 'DONE' ? '✓ Concluído' : update.type ===
+              'IN_PROGRESS' ? '⏳ Em Progresso' : '📅 Planejado' %>
+            </span>
+            <span class="text-gray-500 text-sm">
+              <%= new Date(update.createdAt).toLocaleDateString('pt-BR', { day:
+              '2-digit', month: 'short', year: 'numeric' }) %>
+            </span>
+          </div>
+
+          <h3 class="text-xl font-semibold mb-2"><%= update.title %></h3>
+          <p class="text-gray-400 leading-relaxed"><%= update.content %></p>
+
+          <% if (update.author) { %>
+          <div class="mt-4 pt-4 border-t border-white/10 text-sm text-gray-500">
+            por <span class="text-primary">@<%= update.author.handle %></span>
+          </div>
+          <% } %>
+        </div>
+      </div>
+      <% }); %> <% } else { %>
+      <div class="pl-12">
+        <div class="glass rounded-xl p-8 border border-white/10 text-center">
+          <p class="text-gray-400">Nenhuma atualização publicada ainda.</p>
+        </div>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- Back link -->
+    <div class="mt-8 text-center">
+      <a href="/" class="text-primary hover:underline"
+        >← Voltar para a página inicial</a
+      >
+    </div>
+  </div>
+</main>

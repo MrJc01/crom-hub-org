@@ -54,6 +54,32 @@ Em um mundo saturado de plataformas que competem pela sua atenção, o Hub.org a
 - **Saídas (OUT):** Pagamentos de infraestrutura, serviços, e outros gastos são documentados.
 - **Metas:** Configure objetivos de arrecadação com barras de progresso visuais.
 
+### 1.5. Transparência Narrativa (Blog)
+
+O Hub.org vai além de números. O módulo de **Updates** permite que o projeto conte sua história através de posts de progresso:
+
+```
+📝 Diário de Bordo
+
+✅ Concluído | 15 Dez 2024
+   "Migração para novo servidor"
+   Reduzimos custos em 40% com a mudança.
+
+⏳ Em Progresso | 10 Dez 2024
+   "Implementação do módulo de votação"
+   Permitirá decisões democráticas.
+
+📅 Planejado | 01 Dez 2024
+   "Integração com PIX"
+   Pagamentos instantâneos para brasileiros.
+```
+
+**Benefícios:**
+
+- Constrói narrativa do projeto
+- Demonstra progresso contínuo
+- Aumenta confiança dos doadores
+
 ### 2. Governança Participativa (Votação)
 
 O módulo de votação permite que a comunidade participe de decisões importantes:
