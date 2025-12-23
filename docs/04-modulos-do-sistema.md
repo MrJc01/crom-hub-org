@@ -61,7 +61,7 @@ const session = await stripe.checkout.sessions.create({
 
 ```javascript
 // POST /webhooks/stripe
-if (event.type === "checkout.session.completed") {
+if (event.type === 'checkout.session.completed') {
   const { metadata, amount_total } = session;
   await createDonation({
     amount: amount_total / 100,
@@ -307,35 +307,79 @@ sequenceDiagram
 
 ---
 
-## Gerenciamento de Módulos
+## 6. Módulo de Exportação e Backup
 
-### Via `modules.json`
+Permite que o administrador baixe uma cópia completa e configurada do projeto para hospedagem independente.
 
-```json
-{
-  "modules": {
-    "donations": { "enabled": true },
-    "voting": { "enabled": false },
-    "audit_log": { "enabled": true }
-  }
-}
-```
+### Funcionalidades:
 
-### Via Painel Admin (`/admin/settings`)
+- **Configuração Visual**: Personalização de nome, descrição, cores e logo antes do download.
+- **Segurança**: Geração automática de chaves secretas (SESSION_SECRET) e limpeza de dados sensíveis.
+- **Portabilidade**: Entrega um arquivo `.zip` pronto para deploy com `npm start`.
 
-```
-📦 Gerenciar Módulos
+### Fluxo:
 
-[🟢] Doações       [Configurar]
-[⚫] Votação       [Configurar]
-[🟢] Audit Log    [Configurar]
-[🟢] Cron         [Configurar]
-
-🟢 = Ativo   ⚫ = Inativo
-```
+1. Admin acessa `/admin/export`.
+2. Preenche formulário de configuração.
+3. Sistema gera novo `modules.json` e `.env`.
+4. Sistema compacta código-fonte e assets.
+5. Admin inicia download.
 
 ---
 
-## Próximos Passos
+## 7. Sistema de Blog / Atualizações
 
-- **[Banco de Dados](./05-banco-de-dados.md)** — Schema completo
+Canal oficial de comunicação do projeto com a comunidade.
+
+- **Tipos de Posts**:
+  - `DONE` (Concluído - Verde)
+  - `IN_PROGRESS` (Em Progresso - Amarelo)
+  - `PLANNED` (Planejado - Azul)
+- **Engajamento**: Sistema de comentários integrado (com suporte a restrição "Pay-to-Comment").
+
+---
+
+## 8. Gestão de Usuários (Admin)
+
+Painel para controle da base de usuários.
+
+- **Promoção**: Transformar usuários em Admins.
+- **Banimento**: Suspender acesso de usuários mal-intencionados.
+- **Visualização**: Listagem com status, role e data de registro.
+
+---
+
+## 9. Módulo de Doações e Recompensas
+
+Sistema completo para arrecadação de fundos com suporte a pagamentos manuais e automáticos.
+
+- **Pagamento Manual (Pix)**: Upload de comprovante, validação manual por admin.
+- **Pagamento Automático**: Integração Stripe (Cards, Boleto).
+- **Gamificação**: Sistema de badges (tags) baseado no total doado pelo usuário.
+  - Ex: R$ 50 = "Supporter", R$ 500 = "VIP".
+- **Privacidade**: Opção de doação anônima.
+
+---
+
+## 10. Módulo de Integrações
+
+Conecta o Hub.org a serviços de comunicação externos.
+
+- **Email (SMTP)**:
+  - Envio de Magic Links para login.
+  - Notificações de sistema.
+  - Configurável via Admin.
+- **WhatsApp (Meta Cloud API)**:
+  - Integração oficial.
+  - Login e notificações via WhatsApp.
+  - Opção "WhatsApp Obrigatório" para garantir identidade real.
+
+---
+
+## 11. Atualizador de Sistema
+
+Ferramenta interna para manter o Hub.org seguro e atualizado.
+
+- **Verificação de Versão**: Compara versão local (`package.json`) com tags do GitHub.
+- **Backup Automático**: Realiza backup antes de qualquer operação crítica.
+- **One-Click Update**: Executa `git pull` e `npm install` diretamente do painel administrativo.

@@ -13,25 +13,18 @@
 
     <!-- Active Proposals -->
     <div class="space-y-6">
-      <% if (proposals && proposals.length > 0) { %> <%
-      proposals.forEach(function(proposal) { %>
-      <div
-        class="glass rounded-xl p-6 border border-white/10"
-        id="proposal-<%= proposal.id %>"
-      >
+      <% if (proposals && proposals.length > 0) { %> <% proposals.forEach(function(proposal) { %>
+      <div class="glass rounded-xl p-6 border border-white/10" id="proposal-<%= proposal.id %>">
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div>
             <h3 class="text-xl font-semibold mb-1"><%= proposal.title %></h3>
             <div class="flex items-center gap-3 text-sm text-gray-500">
-              <span
-                >por @<%= proposal.author?.handle || proposal.authorHandle
-                %></span
-              >
+              <span>por @<%= proposal.author?.handle || proposal.authorHandle %></span>
               <span>•</span>
               <span
-                >Termina em <%= Math.ceil((new Date(proposal.endsAt) - new
-                Date()) / (1000 * 60 * 60 * 24)) %> dias</span
+                >Termina em <%= Math.ceil((new Date(proposal.endsAt) - new Date()) / (1000 * 60 * 60
+                * 24)) %> dias</span
               >
             </div>
           </div>
@@ -110,16 +103,8 @@
               hx-target="#vote-form-<%= proposal.id %>"
               class="flex items-center gap-3"
             >
-              <input
-                type="hidden"
-                name="proposalId"
-                value="<%= proposal.id %>"
-              />
-              <input
-                type="hidden"
-                name="returnUrl"
-                value="/voting?proposal=<%= proposal.id %>"
-              />
+              <input type="hidden" name="proposalId" value="<%= proposal.id %>" />
+              <input type="hidden" name="returnUrl" value="/voting?proposal=<%= proposal.id %>" />
               <input
                 type="email"
                 name="email"
@@ -134,19 +119,29 @@
                 Participar
               </button>
             </form>
-            <p class="text-sm text-gray-500 mt-2">
-              Enviaremos um link para confirmar seu voto
-            </p>
+            <p class="text-sm text-gray-500 mt-2">Enviaremos um link para confirmar seu voto</p>
           </div>
           <% } %>
+        </div>
+
+        <!-- Comments Toggle -->
+        <div class="mt-4 pt-4 border-t border-white/5">
+          <button
+            class="text-sm text-gray-400 hover:text-white flex items-center gap-2"
+            hx-get="/voting/<%= proposal.id %>/comments"
+            hx-target="#comments-<%= proposal.id %>"
+            hx-swap="innerHTML"
+          >
+            💬 Comentários (<%= proposal._count?.comments || 0 %>)
+          </button>
+          <div id="comments-<%= proposal.id %>" class="mt-4"></div>
         </div>
       </div>
       <% }); %> <% } else { %>
       <div class="glass rounded-xl p-8 border border-white/10 text-center">
         <p class="text-gray-400 mb-4">Nenhuma proposta ativa no momento.</p>
         <p class="text-sm text-gray-500">
-          Propostas são criadas pelos administradores para decisões importantes
-          do projeto.
+          Propostas são criadas pelos administradores para decisões importantes do projeto.
         </p>
       </div>
       <% } %>
@@ -154,9 +149,7 @@
 
     <!-- Back link -->
     <div class="mt-8 text-center">
-      <a href="/" class="text-primary hover:underline"
-        >← Voltar para a página inicial</a
-      >
+      <a href="/" class="text-primary hover:underline">← Voltar para a página inicial</a>
     </div>
   </div>
 </main>

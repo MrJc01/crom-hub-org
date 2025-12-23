@@ -4,11 +4,12 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import view from '@fastify/view';
 import fastifyStatic from '@fastify/static';
+import fastifyMultipart from '@fastify/multipart';
 import ejs from 'ejs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-import { config } from './config/loader.js';
+import { config, isAdmin } from './config/loader.js';
 import { connectDatabase, disconnectDatabase } from './db/client.js';
 import fastifyCookie from '@fastify/cookie';
 import fastifySession from '@fastify/session';
@@ -18,6 +19,7 @@ import { registerAdminRoutes } from './routes/admin.js';
 import { registerAuthRoutes } from './routes/auth.js';
 import { registerWebhookRoutes } from './routes/webhooks.js';
 import { registerCronRoutes } from './routes/cron.js';
+import { registerUserRoutes } from './routes/user.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -53,6 +55,13 @@ await app.register(cors, {
   origin: config.isDev ? true : config.appUrl,
 });
 
+await app.register(fastifyMultipart, {
+    attachFieldsToBody: true,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    }
+});
+
 await app.register(fastifyCookie);
 await app.register(fastifySession, {
   secret: config.sessionSecret,
@@ -74,10 +83,42 @@ await app.register(fastifyStatic, {
 await app.register(view, {
   engine: { ejs },
   root: join(__dirname, 'views'),
-  layout: 'layout.ejs',
+  // Layout removed globally to allow per-route configuration
   defaultContext: {
     organization: config.organization,
+    modules: config.modules,
   },
+});
+
+import { findUserById } from './services/userService.js';
+import { getUserBadges } from './utils/rewards.js';
+
+// ...
+
+// Inject user session into all views
+app.addHook('preHandler', async (request, reply) => {
+  let user = null;
+  let badges = [];
+  
+  if (request.session?.user?.id) {
+      try {
+          user = await findUserById(request.session.user.id);
+          if (user) {
+              badges = getUserBadges(user.totalDonated);
+              // Update session if needed (optional)
+          }
+      } catch (err) {
+          // If DB fail, fallback to session data
+          user = request.session.user;
+      }
+  }
+
+  // Make user available in all views
+  reply.locals = {
+    user: user || null,
+    userBadges: badges,
+    isAdmin: user ? isAdmin(user.email) : false,
+  };
 });
 
 // Form body parser
@@ -92,9 +133,47 @@ app.addContentTypeParser('application/x-www-form-urlencoded', { parseAs: 'string
 registerFinanceRoutes(app);
 registerAuthRoutes(app);
 registerAdminRoutes(app);
+registerUserRoutes(app);
 registerWebhookRoutes(app);
 registerCronRoutes(app);
 registerPageRoutes(app);
+
+// Error handler
+app.setErrorHandler(async (error, request, reply) => {
+  const statusCode = error.statusCode || 500;
+  
+  // Log error in dev
+  if (config.isDev) {
+    console.error('[Error]', error);
+  }
+  
+  // Render error page for HTML requests
+  if (request.headers.accept?.includes('text/html')) {
+    return reply.status(statusCode).view('pages/error.ejs', {
+      title: `Erro ${statusCode}`,
+      statusCode,
+      message: error.message,
+    }, { layout: 'layout.ejs' });
+  }
+  
+  // JSON response for API requests
+  return reply.status(statusCode).send({
+    error: error.message,
+    statusCode,
+  });
+});
+
+// 404 handler
+app.setNotFoundHandler(async (request, reply) => {
+  if (request.headers.accept?.includes('text/html')) {
+    return reply.status(404).view('pages/error.ejs', {
+      title: 'Página não encontrada',
+      statusCode: 404,
+      message: null,
+    }, { layout: 'layout.ejs' });
+  }
+  return reply.status(404).send({ error: 'Not found' });
+});
 
 // ============================================
 // Startup

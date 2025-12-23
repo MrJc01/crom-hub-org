@@ -14,15 +14,20 @@ datasource db {
 // Users
 // ============================================
 model User {
-  id           Int       @id @default(autoincrement())
-  email        String    @unique
-  handle       String    @unique
-  role         String    @default("user") // "user" | "admin"
-  createdAt    DateTime  @default(now())
-  banned       Boolean   @default(false)
-  bannedAt     DateTime?
-  bannedReason String?
-  activeSession Boolean @default(false)
+  id               Int       @id @default(autoincrement())
+  email            String    @unique
+  handle           String    @unique
+  role             String    @default("user") // "user" | "admin"
+  whatsapp         String?   @unique
+  phoneVerified    Boolean   @default(false)
+  totalDonated     Float     @default(0)
+  badges           String    @default("[]") // JSON array of badges
+  createdAt        DateTime  @default(now())
+  banned           Boolean   @default(false)
+  bannedAt         DateTime?
+  bannedReason     String?
+  activeSession    Boolean   @default(false)
+  metadata         String    @default("{}") // JSON for user preferences (e.g. dismissed prompts)
 
   // Relations
   transactions Transaction[]
@@ -30,17 +35,18 @@ model User {
   proposals    Proposal[]
   tokens       AuthToken[]
   updates      Update[]
+  comments     Comment[]
 }
 
 // ============================================
-// Auth Tokens (Magic Links)
+// Auth Tokens (Magic Links & OTP)
 // ============================================
 model AuthToken {
   id        Int      @id @default(autoincrement())
   token     String   @unique
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
-  type      String   @default("login") // login, verify
+  type      String   @default("login") // login, verify_email, verify_whatsapp
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime @default(now())
@@ -66,6 +72,8 @@ model Transaction {
   category    String?  // "infrastructure", "service", etc.
   automatic   Boolean  @default(false) // true = cron payment
   externalId  String?  // Stripe/PagSeguro ID
+  proofUrl    String?  // For manual payments/uploads
+  status      String   @default("completed") // pending, completed, rejected (for manual proofs)
   createdAt   DateTime @default(now())
 
   @@index([type])
@@ -73,25 +81,54 @@ model Transaction {
 }
 
 // ============================================
+// Comments (Generic)
+// ============================================
+model Comment {
+  id           Int       @id @default(autoincrement())
+  content      String
+  authorId     Int
+  author       User      @relation(fields: [authorId], references: [id])
+  
+  // Relations (Polymorphic-ish)
+  proposalId   Int?
+  proposal     Proposal? @relation(fields: [proposalId], references: [id])
+  
+  updateId     Int?
+  update       Update?   @relation(fields: [updateId], references: [id])
+  
+  createdAt    DateTime  @default(now())
+  
+  @@index([proposalId])
+  @@index([updateId])
+  @@index([createdAt])
+}
+
+// ============================================
 // Proposals (Voting)
 // ============================================
 model Proposal {
-  id           Int       @id @default(autoincrement())
-  authorHandle String
-  author       User      @relation(fields: [authorHandle], references: [handle])
-  title        String
-  description  String?
-  status       String    @default("active") // "draft" | "active" | "voting" | "closed" | "cancelled"
-  result       String?   // "approved" | "denied" | "no_quorum"
-  createdAt    DateTime  @default(now())
-  endsAt       DateTime
-  closedAt     DateTime?
-  yesCount     Int       @default(0)
-  noCount      Int       @default(0)
-  abstainCount Int       @default(0)
+  id                  Int       @id @default(autoincrement())
+  authorHandle        String
+  author              User      @relation(fields: [authorHandle], references: [handle])
+  title               String
+  description         String?
+  status              String    @default("active") // "draft" | "active" | "voting" | "closed" | "cancelled"
+  result              String?   // "approved" | "denied" | "no_quorum"
+  
+  // Config specific to this proposal
+  minPaymentToVote    Float     @default(0)
+  minPaymentToComment Float     @default(0)
+  
+  createdAt           DateTime  @default(now())
+  endsAt              DateTime
+  closedAt            DateTime?
+  yesCount            Int       @default(0)
+  noCount             Int       @default(0)
+  abstainCount        Int       @default(0)
 
   // Relations
-  votes Vote[]
+  votes    Vote[]
+  comments Comment[]
 
   @@index([status])
   @@index([endsAt])
@@ -144,13 +181,19 @@ model Setting {
 // Updates (Blog/Changelog)
 // ============================================
 model Update {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String   // Markdown
-  type      String   @default("DONE") // DONE, IN_PROGRESS, PLANNED
-  authorId  Int
-  author    User     @relation(fields: [authorId], references: [id])
-  createdAt DateTime @default(now())
+  id                  Int      @id @default(autoincrement())
+  title               String
+  content             String   // Markdown
+  type                String   @default("DONE") // DONE, IN_PROGRESS, PLANNED
+  
+  allowComments       Boolean  @default(true)
+  minPaymentToComment Float    @default(0)
+  
+  authorId            Int
+  author              User     @relation(fields: [authorId], references: [id])
+  createdAt           DateTime @default(now())
+  
+  comments            Comment[]
 
   @@index([createdAt(sort: Desc)])
   @@index([type])

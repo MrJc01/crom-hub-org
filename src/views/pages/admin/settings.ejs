@@ -1,0 +1,107 @@
+<!-- Settings Page -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <!-- General Settings -->
+  <div class="lg:col-span-2 space-y-8">
+    <div class="glass rounded-2xl p-6 border border-white/10">
+      <h2 class="text-xl font-bold mb-6">Configurações Gerais</h2>
+      <div class="space-y-6">
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Nome da Organização</label>
+          <input
+            type="text"
+            readonly
+            value="<%= organization.name %>"
+            class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-gray-400 cursor-not-allowed"
+          />
+          <p class="text-xs text-gray-500 mt-2">Editável apenas via modules.json</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Moeda</label>
+            <input
+              type="text"
+              readonly
+              value="<%= organization.currency %>"
+              class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-gray-400 cursor-not-allowed"
+            />
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Locale</label>
+            <input
+              type="text"
+              readonly
+              value="<%= organization.locale %>"
+              class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-gray-400 cursor-not-allowed"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Integrations -->
+    <div class="glass rounded-2xl p-6 border border-white/10">
+      <h2 class="text-xl font-bold mb-6">Integrações</h2>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">💳</span>
+            <div>
+              <p class="font-medium">Stripe</p>
+              <p class="text-sm text-gray-400">Pagamentos e doações</p>
+            </div>
+          </div>
+          <% if (config.stripe?.secretKey) { %>
+          <span class="text-green-400 text-sm font-medium">Conectado</span>
+          <% } else { %>
+          <span class="text-yellow-400 text-sm font-medium">Configurar .env</span>
+          <% } %>
+        </div>
+
+        <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">📧</span>
+            <div>
+              <p class="font-medium">SMTP</p>
+              <p class="text-sm text-gray-400">Envio de emails</p>
+            </div>
+          </div>
+          <% if (config.smtp?.host) { %>
+          <span class="text-green-400 text-sm font-medium">Conectado</span>
+          <% } else { %>
+          <span class="text-yellow-400 text-sm font-medium">Configurar .env</span>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Info -->
+  <div class="lg:col-span-1 space-y-6">
+    <div class="glass rounded-2xl p-6 border border-white/10">
+      <h2 class="text-lg font-bold mb-4">Informações do Sistema</h2>
+      <div class="space-y-3 text-sm">
+        <div class="flex justify-between">
+          <span class="text-gray-400">Versão</span>
+          <span><%= config.version || '1.0.0' %></span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">Ambiente</span>
+          <span class="uppercase"><%= config.env %></span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">Banco de Dados</span>
+          <span>SQLite</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl">
+      <p class="text-blue-400 text-sm mb-2">💡 Dica</p>
+      <p class="text-gray-300 text-sm">
+        A maioria das configurações é gerenciada via arquivo <code>modules.json</code> para garantir
+        versionamento e segurança.
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,118 @@
+<!-- Users Management -->
+<div class="glass rounded-2xl border border-white/10 overflow-hidden">
+  <div class="p-6 border-b border-white/10 flex items-center justify-between">
+    <h2 class="text-lg font-bold">Usuários Registrados</h2>
+    <div class="text-sm text-gray-400">Total: <%= users.length %></div>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left">
+      <thead class="bg-white/5 text-gray-400 text-sm uppercase">
+        <tr>
+          <th class="px-6 py-4">Usuário</th>
+          <th class="px-6 py-4">Role</th>
+          <th class="px-6 py-4">Status</th>
+          <th class="px-6 py-4">Data Registro</th>
+          <th class="px-6 py-4">Ações</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-white/10" id="users-table-body">
+        <% users.forEach(u => { %>
+        <tr class="hover:bg-white/5 transition" id="user-row-<%= u.id %>">
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-sm"
+              >
+                <%= u.handle[0].toUpperCase() %>
+              </div>
+              <div>
+                <p class="font-medium"><%= u.handle %></p>
+                <p class="text-xs text-gray-500"><%= u.email %></p>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4">
+            <% if (u.role === 'ADMIN' || u.role === 'SUPERADMIN') { %>
+            <span class="px-2 py-1 bg-purple-500/10 text-purple-400 rounded text-xs font-bold"
+              ><%= u.role %></span
+            >
+            <% } else { %>
+            <span class="px-2 py-1 bg-gray-500/10 text-gray-400 rounded text-xs"
+              ><%= u.role %></span
+            >
+            <% } %>
+          </td>
+          <td class="px-6 py-4">
+            <% if (u.banned) { %>
+            <span class="text-red-400 flex items-center gap-1 text-sm"> 🚫 Banido </span>
+            <% } else { %>
+            <span class="text-green-400 flex items-center gap-1 text-sm"> ✅ Ativo </span>
+            <% } %>
+          </td>
+          <td class="px-6 py-4 text-sm text-gray-400">
+            <%= new Date(u.createdAt).toLocaleDateString() %>
+          </td>
+          <td class="px-6 py-4 relative group">
+            <div class="flex items-center gap-2">
+              <!-- Role Toggle -->
+              <% if (u.role === 'admin') { %>
+              <button
+                hx-post="/admin/users/<%= u.id %>/role"
+                hx-vals='{"role": "user"}'
+                hx-target="#users-table-body"
+                hx-swap="none"
+                hx-on::after-request="window.location.reload()"
+                class="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded transition text-gray-300"
+                title="Rebaixar para Usuário"
+              >
+                ⬇️ User
+              </button>
+              <% } else { %>
+              <button
+                hx-post="/admin/users/<%= u.id %>/role"
+                hx-vals='{"role": "admin"}'
+                hx-target="#users-table-body"
+                hx-swap="none"
+                hx-on::after-request="window.location.reload()"
+                class="text-xs bg-purple-900/50 hover:bg-purple-900 px-2 py-1 rounded transition text-purple-300"
+                title="Promover a Admin"
+              >
+                ⬆️ Admin
+              </button>
+              <% } %>
+
+              <!-- Ban Toggle -->
+              <% if (u.banned) { %>
+              <button
+                hx-post="/admin/users/<%= u.id %>/ban"
+                hx-vals='{"banned": "false"}'
+                hx-target="#users-table-body"
+                hx-swap="none"
+                hx-on::after-request="window.location.reload()"
+                class="text-xs bg-green-900/30 hover:bg-green-900/50 px-2 py-1 rounded transition text-green-400"
+                title="Desbanir"
+              >
+                ✅ Desbanir
+              </button>
+              <% } else { %>
+              <button
+                hx-post="/admin/users/<%= u.id %>/ban"
+                hx-vals='{"banned": "true", "reason": "Admin Action"}'
+                hx-target="#users-table-body"
+                hx-swap="none"
+                hx-on::after-request="window.location.reload()"
+                class="text-xs bg-red-900/30 hover:bg-red-900/50 px-2 py-1 rounded transition text-red-400"
+                title="Banir"
+              >
+                🚫 Banir
+              </button>
+              <% } %>
+            </div>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>

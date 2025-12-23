@@ -1,0 +1,87 @@
+<!-- Updates Management -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <!-- Create Update Form -->
+  <div class="lg:col-span-1">
+    <div class="glass rounded-2xl p-6 border border-white/10 sticky top-6">
+      <h2 class="text-xl font-bold mb-6">Novo Update</h2>
+      <form
+        hx-post="/admin/updates"
+        hx-target="#updates-list"
+        hx-swap="afterbegin"
+        class="space-y-4"
+      >
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Título</label>
+          <input
+            type="text"
+            name="title"
+            required
+            class="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-4 text-white placeholder-gray-600 focus:outline-none focus:border-primary transition"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Tipo</label>
+          <select
+            name="type"
+            class="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-4 text-white focus:outline-none focus:border-primary transition"
+          >
+            <option value="DONE">✅ Feito</option>
+            <option value="PROGRESS">🚧 Em Progresso</option>
+            <option value="PLANNED">📅 Planejado</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Conteúdo</label>
+          <textarea
+            name="content"
+            rows="6"
+            required
+            class="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-4 text-white placeholder-gray-600 focus:outline-none focus:border-primary transition resize-none"
+          ></textarea>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full py-3 bg-primary hover:bg-primary-dark rounded-xl font-medium transition flex items-center justify-center gap-2"
+        >
+          <span>🚀</span>
+          <span>Publicar Update</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Updates List -->
+  <div class="lg:col-span-2">
+    <div class="glass rounded-2xl p-6 border border-white/10">
+      <h2 class="text-xl font-bold mb-6">Histórico</h2>
+      <div id="updates-list" class="space-y-4">
+        <% updates.forEach(update => { %>
+        <div class="p-4 bg-white/5 rounded-xl border border-white/5">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+              <% if (update.type === 'DONE') { %>
+              <span class="text-green-400 bg-green-400/10 px-2 py-1 rounded text-xs">Feito</span>
+              <% } else if (update.type === 'PROGRESS') { %>
+              <span class="text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded text-xs"
+                >Em Progresso</span
+              >
+              <% } else { %>
+              <span class="text-blue-400 bg-blue-400/10 px-2 py-1 rounded text-xs">Planejado</span>
+              <% } %>
+              <span class="text-sm text-gray-400"
+                ><%= new Date(update.createdAt).toLocaleDateString() %></span
+              >
+            </div>
+            <div class="text-xs text-gray-500"><%= update.author?.handle || 'Admin' %></div>
+          </div>
+          <h3 class="font-bold text-lg mb-2"><%= update.title %></h3>
+          <p class="text-gray-300 text-sm whitespace-pre-wrap"><%= update.content %></p>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,99 @@
+<!-- Settings Page -->
+<div class="max-w-2xl mx-auto space-y-8">
+  <!-- Profile Settings -->
+  <div class="glass rounded-2xl p-8 border border-white/10">
+    <h2 class="text-xl font-bold mb-6">Meu Perfil</h2>
+
+    <form action="/me/settings/update" method="POST" class="space-y-6">
+      <% if (typeof error !== 'undefined' && error) { %>
+      <div class="p-4 bg-red-500/20 text-red-400 rounded-xl text-sm border border-red-500/50">
+        <%= error %>
+      </div>
+      <% } %>
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-2">Handle (Nome de Usuário)</label>
+        <div class="relative">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">@</span>
+          <input
+            type="text"
+            name="handle"
+            value="<%= user.handle %>"
+            required
+            minlength="3"
+            class="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-primary transition"
+          />
+        </div>
+        <p class="text-xs text-gray-500 mt-2">
+          Isso é como você aparecerá publicamente em votos e doações.
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-2">Email</label>
+        <input
+          type="email"
+          value="<%= user.email %>"
+          disabled
+          class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-gray-500 cursor-not-allowed"
+        />
+        <p class="text-xs text-gray-500 mt-2">
+          Para alterar seu email, entre em contato com o suporte.
+        </p>
+      </div>
+
+      <!-- Newsletter (Mockup for now) -->
+      <div class="pt-4 border-t border-white/10">
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            name="newsletter"
+            class="w-5 h-5 rounded accent-primary bg-white/10 border-white/20"
+            checked
+          />
+          <div>
+            <p class="font-medium">Receber novidades</p>
+            <p class="text-xs text-gray-400">Emails sobre novos updates e propostas.</p>
+          </div>
+        </label>
+      </div>
+
+      <div class="pt-6">
+        <button
+          type="submit"
+          class="px-8 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-xl transition flex items-center gap-2"
+        >
+          <span>💾</span>
+          <span>Salvar Alterações</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="p-8 rounded-2xl border border-red-500/20 bg-red-500/5">
+    <h3 class="text-red-400 font-bold mb-4">Zona de Perigo</h3>
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="font-medium text-white">Deletar Conta</p>
+        <p class="text-sm text-gray-400">Essa ação não pode ser desfeita.</p>
+      </div>
+      <button
+        onclick="alert('Funcionalidade em breve!')"
+        class="px-4 py-2 border border-red-500/50 text-red-400 hover:bg-red-500/10 rounded-xl text-sm transition font-medium"
+      >
+        Deletar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Toast check -->
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('success')) {
+    showToast('Configurações salvas com sucesso!');
+    // Clean URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+</script>

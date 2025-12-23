@@ -1,5 +1,5 @@
 import { prisma } from '../db/client.js';
-import { sendEmail } from './emailService.js';
+import { sendEmail } from './notificationService.js';
 import { findOrCreateUser } from './userService.js';
 import { config } from '../config/loader.js';
 import crypto from 'crypto';
@@ -16,8 +16,8 @@ function generateToken() {
  * @param {string} email User email
  * @param {string} returnUrl Optional URL to redirect after login
  */
-export async function requestLogin(email, returnUrl = null) {
-  const user = await findOrCreateUser(email);
+export async function requestLogin(email, returnUrl = null, whatsapp = null) {
+  const user = await findOrCreateUser(email, whatsapp);
   
   // Create token
   const token = generateToken();
@@ -38,6 +38,14 @@ export async function requestLogin(email, returnUrl = null) {
     link += `&returnUrl=${encodeURIComponent(returnUrl)}`;
   }
   
+  // Dev Logging
+  if (process.env.NODE_ENV === 'development') {
+      console.log('================================================');
+      console.log('🔐 LOGIN MAGIC LINK (DEV ONLY):');
+      console.log(link);
+      console.log('================================================');
+  }
+
   await sendEmail({
     to: email,
     subject: 'Login Hub.org',

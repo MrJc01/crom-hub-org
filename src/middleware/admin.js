@@ -12,6 +12,11 @@ export async function adminMiddleware(request, reply) {
   const email = request.session?.user?.email || (config.isDev ? request.headers['x-admin-email'] : null);
 
   if (!email) {
+    // Se for requisição via navegador, redireciona para login
+    if (request.headers.accept && request.headers.accept.includes('text/html')) {
+      return reply.redirect('/login');
+    }
+    
     return reply.status(401).send({
       error: 'Unauthorized',
       message: 'Autenticação necessária',
@@ -19,6 +24,14 @@ export async function adminMiddleware(request, reply) {
   }
 
   if (!isAdmin(email)) {
+    if (request.headers.accept && request.headers.accept.includes('text/html')) {
+      return reply.status(403).view('pages/error.ejs', {
+        title: 'Acesso Negado',
+        statusCode: 403,
+        message: 'Acesso restrito a administradores',
+      });
+    }
+
     return reply.status(403).send({
       error: 'Forbidden',
       message: 'Acesso restrito a administradores',

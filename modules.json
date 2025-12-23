@@ -15,12 +15,61 @@
     "discord_webhook": "",
     "slack_webhook": ""
   },
+  "integrations": {
+    "whatsapp": {
+      "enabled": false,
+      "account_id": "",
+      "phone_number_id": "",
+      "access_token": "",
+      "verify_token": "",
+      "required_for_login": false
+    },
+    "email": {
+      "enabled": false,
+      "provider": "smtp",
+      "host": "",
+      "port": 587,
+      "user": "",
+      "pass": "",
+      "from": "noreply@hub.org"
+    }
+  },
+  "payments": {
+    "stripe": {
+      "enabled": false,
+      "publishable_key": "",
+      "secret_key": ""
+    },
+    "mercadopago": {
+      "enabled": false,
+      "public_key": "",
+      "access_token": ""
+    },
+    "abacatepay": {
+      "enabled": false,
+      "api_key": ""
+    },
+    "asaas": {
+      "enabled": false,
+      "api_key": ""
+    },
+    "paypal": {
+      "enabled": false,
+      "client_id": "",
+      "client_secret": ""
+    },
+    "manual": {
+      "enabled": true,
+      "pix_key": "email@example.com",
+      "instructions": "Envie o comprovante para confirmar."
+    }
+  },
   "modules": {
     "donations": {
       "enabled": true,
       "settings": {
-        "min_amount": 5,
-        "max_amount": 10000,
+        "min_amount": 1,
+        "max_amount": 10000000,
         "allow_anonymous": true,
         "show_donor_handle": true,
         "show_amount": true,
@@ -29,12 +78,35 @@
           25,
           50,
           100
+        ],
+        "allow_payment_proof_upload": true,
+        "rewards": [
+          {
+            "amount": 100,
+            "tag": "Supporter",
+            "color": "blue"
+          },
+          {
+            "amount": 500,
+            "tag": "Sponsor",
+            "color": "gold"
+          }
         ]
+      }
+    },
+    "auth": {
+      "enabled": true,
+      "settings": {
+        "show_login_button": true,
+        "whatsapp_mode": "optional",
+        "show_popup_after_login": true
       }
     },
     "voting": {
       "enabled": true,
       "settings": {
+        "allow_comments": true,
+        "create_proposal_role": "admin",
         "pay_to_create": {
           "enabled": false,
           "amount": 0
@@ -43,10 +115,24 @@
           "enabled": false,
           "amount": 0
         },
+        "pay_to_comment": {
+          "enabled": false,
+          "amount": 0
+        },
         "quorum": {
           "min_votes": 5
         },
         "duration_days": 7
+      }
+    },
+    "blog": {
+      "enabled": true,
+      "settings": {
+        "allow_comments": true,
+        "pay_to_comment": {
+          "enabled": false,
+          "amount": 0
+        }
       }
     },
     "transparency": {
@@ -71,7 +157,9 @@
           "REFUND_TRANSACTION",
           "CHANGE_SETTINGS",
           "CHANGE_LAYOUT",
-          "CREATE_EXPENSE"
+          "CREATE_EXPENSE",
+          "EXPORT_PROJECT",
+          "SYSTEM_UPDATE"
         ],
         "retention_days": 365
       }
@@ -85,7 +173,7 @@
             {
               "id": "hosting",
               "description": "Servidor DigitalOcean",
-              "amount": 50.00,
+              "amount": 50,
               "currency": "BRL",
               "recipient": "DigitalOcean",
               "category": "infrastructure"
@@ -93,13 +181,19 @@
             {
               "id": "domain",
               "description": "Domínio hub.org",
-              "amount": 12.00,
+              "amount": 12,
               "currency": "BRL",
               "recipient": "Cloudflare",
               "category": "infrastructure"
             }
           ]
         }
+      }
+    },
+    "export": {
+      "enabled": false,
+      "settings": {
+        "allow_user_export": true
       }
     }
   },
@@ -115,8 +209,8 @@
       "donate",
       "hero",
       "about",
-      "updates",
       "features",
+      "updates",
       "transparency",
       "philosophy"
     ],

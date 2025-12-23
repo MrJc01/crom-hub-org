@@ -14,6 +14,9 @@ export async function getRecentUpdates(limit = 10) {
       author: {
         select: { handle: true },
       },
+      _count: {
+        select: { comments: true }
+      }
     },
   });
 }
@@ -28,6 +31,12 @@ export async function getUpdateById(id) {
       author: {
         select: { handle: true },
       },
+      comments: {
+        orderBy: { createdAt: 'desc' },
+        include: {
+            author: { select: { handle: true } }
+        }
+      }
     },
   });
 }
@@ -58,6 +67,28 @@ export async function getUpdatesByType(type, limit = 10) {
       author: {
         select: { handle: true },
       },
+      _count: {
+          select: { comments: true }
+      }
     },
   });
+}
+
+/**
+ * Add a comment to an update
+ */
+export async function addUpdateComment({ updateId, userHandle, content }) {
+    const user = await prisma.user.findUnique({ where: { handle: userHandle } });
+    if (!user) throw new Error('User not found');
+
+    return prisma.comment.create({
+        data: {
+            content,
+            updateId,
+            authorId: user.id
+        },
+        include: {
+            author: { select: { handle: true } }
+        }
+    });
 }

@@ -1,0 +1,50 @@
+<main class="pt-24 pb-12">
+  <div class="max-w-4xl mx-auto px-6">
+    <!-- Back Link -->
+    <a href="/updates" class="text-primary hover:underline mb-8 inline-block"
+      >← Voltar para Atualizações</a
+    >
+
+    <div class="glass rounded-xl p-8 border border-white/10">
+      <!-- Header -->
+      <div class="flex items-center gap-3 mb-6">
+        <span
+          class="px-2 py-0.5 rounded text-xs font-medium <%= update.type === 'DONE' ? 'bg-green-500/20 text-green-400' : update.type === 'IN_PROGRESS' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400' %>"
+        >
+          <%= update.type === 'DONE' ? '✓ Concluído' : update.type === 'IN_PROGRESS' ? '⏳ Em
+          Progresso' : '📅 Planejado' %>
+        </span>
+        <span class="text-gray-500 text-sm">
+          <%= new Date(update.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month:
+          'long', year: 'numeric' }) %>
+        </span>
+      </div>
+
+      <h1 class="text-3xl font-bold mb-6"><%= update.title %></h1>
+
+      <!-- Content -->
+      <div class="prose prose-invert max-w-none text-gray-300 mb-8 whitespace-pre-wrap">
+        <%= update.content %>
+      </div>
+
+      <!-- Author -->
+      <% if (update.author) { %>
+      <div class="flex items-center gap-3 pt-6 border-t border-gray-700">
+        <div
+          class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold"
+        >
+          <%= update.author.handle.substring(0,2).toUpperCase() %>
+        </div>
+        <div>
+          <p class="text-sm font-bold">@<%= update.author.handle %></p>
+          <p class="text-xs text-gray-400">Autor</p>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Comments Section -->
+      <%- include('../partials/comments-section', { comments: update.comments, postUrl:
+      `/updates/${update.id}/comment`, user: typeof user !== 'undefined' ? user : null }) %>
+    </div>
+  </div>
+</main>

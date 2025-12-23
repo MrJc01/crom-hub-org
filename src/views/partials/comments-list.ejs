@@ -1,0 +1,15 @@
+<div id="comments-list" class="space-y-4 mt-6">
+  <% if (comments && comments.length > 0) { %> <% comments.forEach(comment => { %>
+  <div class="bg-gray-800 p-4 rounded-lg">
+    <div class="flex justify-between text-sm text-gray-400 mb-2">
+      <span class="font-bold text-white"
+        >@<%= comment.author.handle || comment.authorHandle %></span
+      >
+      <span><%= new Date(comment.createdAt).toLocaleDateString() %></span>
+    </div>
+    <p class="text-gray-300"><%= comment.content %></p>
+  </div>
+  <% }) %> <% } else { %>
+  <p class="text-gray-500 italic">Nenhum comentário ainda.</p>
+  <% } %>
+</div>

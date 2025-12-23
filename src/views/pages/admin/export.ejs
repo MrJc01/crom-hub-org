@@ -1,0 +1,196 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold">Exportar Projeto</h1>
+      <p class="text-gray-400">Configure e baixe uma versão "White Label" do sistema.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Configuration Form -->
+    <div class="glass rounded-2xl p-6 border border-white/10">
+      <h2 class="text-xl font-bold mb-4">Configuração Básica</h2>
+
+      <form action="<%= postUrl %>" method="POST" class="space-y-4" id="exportForm">
+        <!-- Branding -->
+        <div class="space-y-4 border-b border-white/10 pb-6">
+          <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+            Identidade Visual
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Nome do App</label>
+              <input
+                type="text"
+                name="appName"
+                value="<%= config.organization.name %>"
+                class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary focus:outline-none transition"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Cor Primária</label>
+              <div class="flex gap-2">
+                <input
+                  type="color"
+                  name="primaryColor"
+                  value="<%= config.organization.primary_color %>"
+                  class="h-10 w-10 rounded cursor-pointer bg-transparent border-0"
+                />
+                <input
+                  type="text"
+                  name="primaryColorText"
+                  value="<%= config.organization.primary_color %>"
+                  readonly
+                  class="flex-1 bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Descrição</label>
+            <textarea
+              name="description"
+              rows="2"
+              class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary focus:outline-none transition"
+            >
+<%= config.organization.description %></textarea
+            >
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">URL da Logo</label>
+            <input
+              type="text"
+              name="logoUrl"
+              value="<%= config.organization.logo_url %>"
+              class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary focus:outline-none transition"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Admin Info (.env)</label>
+            <input
+              type="email"
+              name="adminEmail"
+              placeholder="admin@seuprojeto.com"
+              class="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary focus:outline-none transition"
+            />
+            <p class="text-xs text-gray-500 mt-1">
+              Este email será configurado como admin no arquivo .env gerado.
+            </p>
+          </div>
+        </div>
+
+        <!-- Module Selection -->
+        <div class="space-y-4">
+          <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+            Módulos Habilitados
+          </h3>
+          <div class="grid grid-cols-2 gap-3">
+            <% Object.entries(config.modules).forEach(([key, module]) => { %>
+            <label
+              class="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10 cursor-pointer hover:bg-white/10 transition"
+            >
+              <input type="checkbox" name="modules[<%= key %>]" value="true" <%= module.enabled ?
+              'checked' : '' %> class="w-5 h-5 rounded accent-primary bg-transparent
+              border-white/20">
+              <span class="capitalize"><%= key.replace('_', ' ') %></span>
+            </label>
+            <% }); %>
+          </div>
+        </div>
+
+        <div class="pt-4 flex gap-4">
+          <button
+            type="button"
+            onclick="previewConfig()"
+            class="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition flex items-center justify-center gap-2"
+          >
+            <span>👁️</span>
+            <span>Pré-visualizar</span>
+          </button>
+          <button
+            type="submit"
+            class="flex-1 px-4 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+          >
+            <span>📦</span>
+            <span>Baixar Código Fonte (ZIP)</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Info / Preview Instructions -->
+    <div class="space-y-6">
+      <div class="glass rounded-2xl p-6 border border-white/10">
+        <h2 class="text-xl font-bold mb-4">O que está incluído?</h2>
+        <ul class="space-y-3 text-gray-400">
+          <li class="flex items-start gap-3">
+            <span class="text-green-400 mt-1">✓</span>
+            <div>
+              <strong class="text-white block">Código Fonte Completo</strong>
+              Todos os arquivos do sistema (backend, frontend, rotas).
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-green-400 mt-1">✓</span>
+            <div>
+              <strong class="text-white block">Configuração Personalizada</strong>
+              O arquivo <code>modules.json</code> já virá configurado com suas escolhas.
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-green-400 mt-1">✓</span>
+            <div>
+              <strong class="text-white block">Ambiente Pronto</strong>
+              Um arquivo <code>.env.example</code> e <code>.env</code> pré-configurados.
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-yellow-400 mt-1">!</span>
+            <div>
+              <strong class="text-white block">Exclusões</strong>
+              <code>node_modules</code>, base de dados, e seus arquivos <code>.env</code> com
+              segredos reais <strong>NÃO</strong> são exportados por segurança.
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+        <h3 class="font-bold text-blue-400 mb-2">💡 Nota sobre Atualizações</h3>
+        <p class="text-sm text-gray-400">
+          Os projetos exportados são "detached" (desvinculados). Eles são versões standalone. Para
+          receber atualizações futuras, você precisará manter o repositório git configurado ou
+          baixar uma nova versão manualmente.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function previewConfig() {
+    const form = document.getElementById('exportForm');
+    const originalAction = form.action;
+    const originalTarget = form.target;
+
+    form.action = '<%= previewUrl %>';
+    form.target = '_blank';
+    form.submit();
+
+    // Reset after short delay
+    setTimeout(() => {
+      form.action = originalAction;
+      form.target = originalTarget;
+    }, 100);
+  }
+
+  // Sync color inputs
+  document.querySelector('input[name="primaryColor"]').addEventListener('input', (e) => {
+    document.querySelector('input[name="primaryColorText"]').value = e.target.value;
+  });
+</script>

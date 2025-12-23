@@ -78,6 +78,17 @@ const modulesSchema = z.object({
       })
       .optional(),
 
+    auth: z
+      .object({
+        enabled: z.boolean(),
+        settings: z
+          .object({
+            show_login_button: z.boolean().default(true),
+          })
+          .optional(),
+      })
+      .optional(),
+
     voting: z
       .object({
         enabled: z.boolean(),
@@ -133,6 +144,17 @@ const modulesSchema = z.object({
       })
       .optional(),
 
+    export: z
+      .object({
+        enabled: z.boolean().default(true),
+        settings: z
+          .object({
+            allow_user_export: z.boolean().default(false),
+          })
+          .optional(),
+      })
+      .optional(),
+
     cron: z
       .object({
         enabled: z.boolean(),
@@ -183,6 +205,16 @@ const modulesSchema = z.object({
       ),
     })
     .optional(),
+
+  payments: z
+    .record(
+        z.object({
+            enabled: z.boolean().default(false),
+            // Allow specific provider setting keys
+        }).catchall(z.any())
+    )
+    .optional()
+    .default({}),
 });
 
 // ============================================
@@ -288,6 +320,7 @@ export const config = {
     user: env.SMTP_USER,
     pass: env.SMTP_PASS,
     from: env.SMTP_FROM,
+    
   },
 
   // OAuth
@@ -308,9 +341,11 @@ export const config = {
   // Modules (from modules.json)
   organization: modules.organization,
   modules: modules.modules,
+  payments: modules.payments || {}, // Export payments
   security: modules.security,
   version: modules.version,
   landingPage: modules.landing_page || { sections_order: [], sections_data: {} },
+  integrations: modules.integrations || {},
 };
 
 export function isAdmin(email) {

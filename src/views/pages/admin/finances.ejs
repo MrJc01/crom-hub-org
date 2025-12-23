@@ -1,0 +1,95 @@
+<!-- Finances Dashboard -->
+<div class="space-y-8">
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="glass rounded-2xl p-6 border border-white/10">
+      <h3 class="text-sm text-gray-400 mb-1">Saldo Total</h3>
+      <p
+        class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600"
+      >
+        R$ <%= summary.balance.toFixed(2) %>
+      </p>
+    </div>
+    <div class="glass rounded-2xl p-6 border border-white/10">
+      <h3 class="text-sm text-gray-400 mb-1">Entradas (Total)</h3>
+      <p class="text-2xl font-bold text-green-400">+ R$ <%= summary.total_in.toFixed(2) %></p>
+    </div>
+    <div class="glass rounded-2xl p-6 border border-white/10">
+      <h3 class="text-sm text-gray-400 mb-1">Saídas (Total)</h3>
+      <p class="text-2xl font-bold text-red-400">- R$ <%= summary.total_out.toFixed(2) %></p>
+    </div>
+    <div class="glass rounded-2xl p-6 border border-white/10">
+      <h3 class="text-sm text-gray-400 mb-1">Meta Mensal</h3>
+      <div class="flex items-end gap-2 mb-2">
+        <p class="text-2xl font-bold"><%= ((summary.total_in / 1000) * 100).toFixed(0) %>%</p>
+        <span class="text-sm text-gray-500 mb-1">de R$ 1.000</span>
+      </div>
+      <div class="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+        <div
+          class="bg-primary h-full rounded-full"
+          style="width: <%= Math.min((summary.total_in / 1000) * 100, 100) %>%"
+        ></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transactions Table -->
+  <div class="glass rounded-2xl border border-white/10 overflow-hidden">
+    <div class="p-6 border-b border-white/10 flex items-center justify-between">
+      <h2 class="text-lg font-bold">Transações Recentes</h2>
+      <a href="/transparency" target="_blank" class="text-sm text-primary hover:underline"
+        >Ver Portal Público</a
+      >
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-white/5 text-gray-400 text-sm uppercase">
+          <tr>
+            <th class="px-6 py-4">Data</th>
+            <th class="px-6 py-4">Tipo</th>
+            <th class="px-6 py-4">Descrição</th>
+            <th class="px-6 py-4">Origem/Destino</th>
+            <th class="px-6 py-4 text-right">Valor</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/10">
+          <% transactions.forEach(t => { %>
+          <tr class="hover:bg-white/5 transition">
+            <td class="px-6 py-4 text-sm text-gray-400">
+              <%= new Date(t.createdAt).toLocaleDateString() %>
+            </td>
+            <td class="px-6 py-4">
+              <% if (t.type === 'IN') { %>
+              <span
+                class="px-2 py-1 bg-green-500/10 text-green-400 rounded text-xs flex w-fit items-center gap-1"
+              >
+                ⬇️ Entrada
+              </span>
+              <% } else { %>
+              <span
+                class="px-2 py-1 bg-red-500/10 text-red-400 rounded text-xs flex w-fit items-center gap-1"
+              >
+                ⬆️ Saída
+              </span>
+              <% } %>
+            </td>
+            <td class="px-6 py-4 font-medium">
+              <%= t.description %> <% if (t.automatic) { %>
+              <span title="Automático" class="ml-2 text-xs opacity-50">🤖</span>
+              <% } %>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-400">
+              <%= t.donorHandle || t.recipient || 'Anônimo' %>
+            </td>
+            <td class="px-6 py-4 text-right font-mono">
+              <span class="<%= t.type === 'IN' ? 'text-green-400' : 'text-red-400' %>">
+                <%= t.type === 'IN' ? '+' : '-' %> R$ <%= t.amount.toFixed(2) %>
+              </span>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

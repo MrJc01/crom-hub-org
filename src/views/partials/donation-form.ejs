@@ -2,56 +2,56 @@
   hx-post="/donate"
   hx-target="#donation-form"
   hx-swap="innerHTML"
+  hx-encoding="multipart/form-data"
   class="space-y-6"
+  id="donation-form-el"
 >
   <% if (typeof error !== 'undefined' && error) { %>
-  <div
-    class="p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-400 text-sm"
-  >
+  <div class="p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-400 text-sm">
     ⚠️ <%= error %>
   </div>
   <% } %>
 
+  <!-- Payment Method Selection -->
+  <label class="block text-sm text-gray-400 mb-3">Escolha o método de pagamento</label>
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+    <% Object.entries(config.payments).forEach(([key, provider]) => { %> <% if (provider.enabled) {
+    %>
+    <button
+      type="button"
+      class="method-btn flex flex-col items-center justify-center p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition gap-2 <%= key === 'manual' ? 'ring-2 ring-primary border-transparent' : '' %>"
+      onclick="selectMethod('<%= key %>', this)"
+      data-method="<%= key %>"
+    >
+      <div class="text-2xl">
+        <% if(key === 'stripe') { %> 💳 <% } %> <% if(key === 'mercadopago') { %> 🤝 <% } %> <%
+        if(key === 'abacatepay') { %> 🥑 <% } %> <% if(key === 'asaas') { %> 🏦 <% } %> <% if(key
+        === 'paypal') { %> 🅿️ <% } %> <% if(key === 'manual') { %> 💸 <% } %>
+      </div>
+      <span class="text-sm font-medium capitalize"
+        ><%= key.replace('mercadopago', 'Mercado Pago').replace('abacatepay', 'AbacatePay') %></span
+      >
+    </button>
+    <% } %> <% }); %>
+  </div>
+  <input type="hidden" name="method" id="payment-method" value="manual" />
+
   <!-- Amount Selection -->
   <div>
-    <label class="block text-sm text-gray-400 mb-3"
-      >Escolha um valor ou digite o seu</label
-    >
+    <label class="block text-sm text-gray-400 mb-3">Escolha um valor ou digite o seu</label>
     <div class="grid grid-cols-4 gap-3 mb-3">
+      <% [10, 25, 50, 100].forEach(val => { %>
       <button
         type="button"
-        onclick="document.getElementById('amount').value = 10"
+        onclick="document.getElementById('amount').value = <%= val %>"
         class="py-3 rounded-xl bg-white/5 hover:bg-primary hover:text-white border border-white/10 transition font-medium"
       >
-        R$ 10
+        R$ <%= val %>
       </button>
-      <button
-        type="button"
-        onclick="document.getElementById('amount').value = 25"
-        class="py-3 rounded-xl bg-white/5 hover:bg-primary hover:text-white border border-white/10 transition font-medium"
-      >
-        R$ 25
-      </button>
-      <button
-        type="button"
-        onclick="document.getElementById('amount').value = 50"
-        class="py-3 rounded-xl bg-white/5 hover:bg-primary hover:text-white border border-white/10 transition font-medium"
-      >
-        R$ 50
-      </button>
-      <button
-        type="button"
-        onclick="document.getElementById('amount').value = 100"
-        class="py-3 rounded-xl bg-white/5 hover:bg-primary hover:text-white border border-white/10 transition font-medium"
-      >
-        R$ 100
-      </button>
+      <% }) %>
     </div>
     <div class="relative">
-      <span
-        class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium"
-        >R$</span
-      >
+      <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">R$</span>
       <input
         type="number"
         name="amount"
@@ -65,11 +65,47 @@
     </div>
   </div>
 
+  <!-- Dynamic Payment Details -->
+  <% Object.entries(config.payments).forEach(([key, provider]) => { %> <% if (provider.enabled) { %>
+  <div
+    id="details-<%= key %>"
+    class="method-details <%= key === 'manual' ? '' : 'hidden' %> space-y-4 pt-4 border-t border-white/10 mt-4"
+  >
+    <% if (key === 'manual') { %>
+    <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+      <p class="text-sm text-gray-400 mb-1">Chave Pix:</p>
+      <code
+        class="block bg-black/30 p-2 rounded text-lg font-mono text-white mb-2 select-all cursor-pointer"
+        ><%= provider.pix_key || 'email@example.com' %></code
+      >
+      <p class="text-xs text-gray-500">
+        <%= provider.instructions || 'Envie o comprovante para confirmar.' %>
+      </p>
+    </div>
+    <div>
+      <label class="block text-sm text-gray-400 mb-2">Comprovante</label>
+      <input
+        type="file"
+        name="proof"
+        accept="image/*,.pdf"
+        class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+      />
+    </div>
+    <% } else { %>
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-center gap-3">
+      <span class="text-2xl">ℹ️</span>
+      <p class="text-sm text-blue-200">
+        Você será redirecionado para o <strong><%= key %></strong> para finalizar o pagamento de
+        forma segura.
+      </p>
+    </div>
+    <% } %>
+  </div>
+  <% } %> <% }); %>
+
   <!-- Message -->
   <div>
-    <label class="block text-sm text-gray-400 mb-2"
-      >Deixe uma mensagem (opcional)</label
-    >
+    <label class="block text-sm text-gray-400 mb-2">Deixe uma mensagem (opcional)</label>
     <textarea
       name="message"
       placeholder="Obrigado por manter o projeto..."
@@ -89,8 +125,7 @@
       class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder-gray-600 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
     />
     <p class="text-xs text-gray-500 mt-2">
-      Deixe em branco para doar anonimamente. Com email, você recebe um @handle
-      único.
+      Deixe em branco para doar anonimamente. Com email, você recebe um @handle único.
     </p>
   </div>
 
@@ -106,4 +141,25 @@
   <p class="text-center text-gray-500 text-sm">
     🔒 Seus dados estão seguros • Transação 100% transparente
   </p>
+
+  <script>
+    function selectMethod(method, btn) {
+      document.getElementById('payment-method').value = method;
+
+      // Update buttons
+      document.querySelectorAll('.method-btn').forEach((b) => {
+        b.classList.remove('ring-2', 'ring-primary', 'border-transparent');
+        // b.classList.add('bg-white/5');
+      });
+      btn.classList.add('ring-2', 'ring-primary', 'border-transparent');
+      // btn.classList.remove('bg-white/5'); // Optional visual toggle
+
+      // Toggle details
+      document.querySelectorAll('.method-details').forEach((el) => el.classList.add('hidden'));
+      const details = document.getElementById(`details-${method}`);
+      if (details) {
+        details.classList.remove('hidden');
+      }
+    }
+  </script>
 </form>

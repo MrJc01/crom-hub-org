@@ -19,7 +19,10 @@ export async function getActiveProposals() {
         select: { handle: true },
       },
       _count: {
-        select: { votes: true },
+        select: { 
+          votes: true,
+          comments: true 
+        },
       },
     },
   });
@@ -35,6 +38,9 @@ export async function getAllProposals(limit = 50) {
     include: {
       author: {
         select: { handle: true },
+      },
+      _count: {
+        select: { votes: true, comments: true },
       },
     },
   });
@@ -57,6 +63,14 @@ export async function getProposalById(id) {
           },
         },
       },
+      comments: {
+        orderBy: { createdAt: 'desc' },
+        include: {
+            author: {
+                select: { handle: true }
+            }
+        }
+      }
     },
   });
 }
@@ -65,7 +79,22 @@ export async function getProposalById(id) {
  * Create a new proposal
  */
 export async function createProposal({ title, description, authorHandle }) {
-  const durationDays = config.modules.voting?.settings?.duration_days || 7;
+  const settings = config.modules.voting?.settings;
+  const user = await prisma.user.findUnique({ where: { handle: authorHandle } });
+  
+  // 1. Check Role
+  if (settings?.create_proposal_role === 'admin' && user.role !== 'admin') {
+      throw new Error('Apenas administradores podem criar propostas.');
+  }
+
+  // 2. Check Payment (if not admin, or if admin also subject to it? Usually admin bypasses, but let's stick to simple logic: Role check first. If allowed by role (e.g. user), then check payment)
+  if (user.role !== 'admin' && settings?.pay_to_create?.enabled) {
+      if ((user.totalDonated || 0) < settings.pay_to_create.amount) {
+          throw new Error(`Requer doação mínima de R$ ${settings.pay_to_create.amount} para criar propostas.`);
+      }
+  }
+
+  const durationDays = settings?.duration_days || 7;
   const endsAt = new Date();
   endsAt.setDate(endsAt.getDate() + durationDays);
 
@@ -84,6 +113,16 @@ export async function createProposal({ title, description, authorHandle }) {
  * Cast a vote
  */
 export async function castVote({ proposalId, userHandle, vote }) {
+  // Check permission
+  const settings = config.modules.voting?.settings;
+  const user = await prisma.user.findUnique({ where: { handle: userHandle } });
+  
+  if (settings?.pay_to_vote?.enabled) {
+      if ((user.totalDonated || 0) < settings.pay_to_vote.amount) {
+          throw new Error(`Requer doação mínima de R$ ${settings.pay_to_vote.amount} para votar.`);
+      }
+  }
+
   // Check if user already voted
   const existingVote = await prisma.vote.findUnique({
     where: {
@@ -94,7 +133,7 @@ export async function castVote({ proposalId, userHandle, vote }) {
   if (existingVote) {
     throw new Error('Você já votou nesta proposta');
   }
-
+  
   // Create vote
   const newVote = await prisma.vote.create({
     data: {
@@ -126,4 +165,25 @@ export async function hasUserVoted(proposalId, userHandle) {
     },
   });
   return !!vote;
+}
+
+/**
+ * Add a comment to a proposal
+ */
+export async function addProposalComment({ proposalId, userHandle, content }) {
+    const user = await prisma.user.findUnique({ where: { handle: userHandle } });
+    if (!user) throw new Error('User not found');
+
+    // TODO: Payment check logic
+
+    return prisma.comment.create({
+        data: {
+            content,
+            proposalId,
+            authorId: user.id
+        },
+        include: {
+            author: { select: { handle: true } }
+        }
+    });
 }

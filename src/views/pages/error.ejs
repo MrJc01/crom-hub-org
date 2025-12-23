@@ -1,0 +1,41 @@
+<main class="pt-32 pb-20 gradient-bg min-h-screen">
+  <div class="max-w-2xl mx-auto px-6 text-center">
+    <div class="glass rounded-2xl p-12 border border-white/10">
+      <div class="text-6xl mb-6">
+        <% if (locals.statusCode === 404) { %> 🔍 <% } else if (locals.statusCode === 403) { %> 🔒
+        <% } else if (locals.statusCode === 401) { %> 🔑 <% } else { %> ⚠️ <% } %>
+      </div>
+
+      <h1 class="text-3xl font-bold mb-4">
+        <% if (locals.statusCode === 404) { %> Página não encontrada <% } else if (locals.statusCode
+        === 403) { %> Acesso negado <% } else if (locals.statusCode === 401) { %> Autenticação
+        necessária <% } else { %> Erro <%= locals.statusCode || 500 %> <% } %>
+      </h1>
+
+      <p class="text-gray-400 mb-8">
+        <% if (locals.message) { %> <%= locals.message %> <% } else if (locals.statusCode === 404) {
+        %> O endereço que você procura não existe ou foi movido. <% } else if (locals.statusCode ===
+        403) { %> Você não tem permissão para acessar esta página. <% } else if (locals.statusCode
+        === 401) { %> Faça login para continuar. <% } else { %> Algo deu errado. Tente novamente
+        mais tarde. <% } %>
+      </p>
+
+      <div class="flex gap-4 justify-center">
+        <a
+          href="/"
+          class="px-6 py-3 bg-primary hover:bg-primary-dark rounded-xl font-medium transition"
+        >
+          Voltar ao início
+        </a>
+        <% if (locals.statusCode === 401 || locals.statusCode === 403) { %>
+        <a
+          href="/login"
+          class="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl font-medium transition"
+        >
+          Fazer login
+        </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</main>

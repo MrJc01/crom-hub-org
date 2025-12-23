@@ -1,0 +1,74 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div>
+    <h1 class="text-3xl font-bold mb-2">Atualização do Sistema</h1>
+    <p class="text-gray-400">Gerencie a versão do seu Hub e realize backups.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Current Version -->
+    <div class="glass rounded-xl p-6 border border-white/10">
+      <h2 class="text-xl font-bold mb-4">Versão Atual</h2>
+      <div class="flex items-center gap-4">
+        <div
+          class="w-16 h-16 rounded-xl bg-primary/20 flex items-center justify-center text-primary text-2xl font-bold"
+        >
+          v<%= config.version || '1.0.0' %>
+        </div>
+        <div>
+          <p class="text-sm text-gray-400">Ambiente</p>
+          <p class="font-bold uppercase"><%= config.env %></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="glass rounded-xl p-6 border border-white/10">
+      <h2 class="text-xl font-bold mb-4">Ações Rápidas</h2>
+      <div class="space-y-3">
+        <form action="/admin/export" method="POST" target="_blank">
+          <!-- Default export with current settings -->
+          <input type="hidden" name="org_name" value="<%= organization.name %>" />
+          <input type="hidden" name="app_url" value="<%= config.appUrl %>" />
+          <input type="hidden" name="session_secret" value="backup_download" />
+          <button
+            type="submit"
+            class="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl font-medium transition flex items-center justify-center gap-2"
+          >
+            <span>📦</span> Fazer Backup Completo (Zip)
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update Checker -->
+  <div class="glass rounded-xl p-6 border border-white/10">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold flex items-center gap-2"><span>🔄</span> Atualizações</h2>
+      <button
+        hx-post="/admin/system/check"
+        hx-target="#update-status"
+        hx-swap="innerHTML"
+        class="px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 rounded-lg text-sm font-bold transition"
+      >
+        Verificar Agora
+      </button>
+    </div>
+
+    <div id="update-status" class="bg-black/30 rounded-xl p-6 text-center">
+      <p class="text-gray-400">
+        Clique em "Verificar Agora" para buscar por novas versões no GitHub.
+      </p>
+    </div>
+  </div>
+
+  <!-- Terminal Output -->
+  <div class="glass rounded-xl p-6 border border-white/10 hidden" id="terminal-container">
+    <h2 class="text-lg font-bold mb-4">Log de Operações</h2>
+    <pre
+      id="terminal-output"
+      class="bg-black rounded-lg p-4 font-mono text-xs text-green-400 h-48 overflow-y-auto whitespace-pre-wrap"
+    ></pre>
+  </div>
+</div>

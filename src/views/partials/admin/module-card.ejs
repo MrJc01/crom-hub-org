@@ -1,0 +1,153 @@
+<% 
+    const moduleDescriptions = {
+        donations: "Gerencie doações, metas e provedores de pagamento.",
+        voting: "Governança participativa, propostas e votações.",
+        blog: "Publicações de atualizações e novidades do projeto.",
+        auth: "Configurações de login e segurança de acesso.",
+        transparency: "Dashboard público de finanças e transações.",
+        audit_log: "Registro de auditoria de ações administrativas.",
+        cron: "Tarefas agendadas e pagamentos automáticos.",
+        whatsapp: "Integração oficial para notificações e login.",
+        email: "Serviço SMTP para emails transacionais."
+    };
+%>
+<div id="module-card-<%= key %>" class="bg-white/5 border border-white/10 rounded-xl p-6 transition hover:border-white/20">
+    <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                <!-- Helper for icons based on key -->
+                <% if(key === 'donations') { %> 💰 <% } %>
+                <% if(key === 'voting') { %> 🗳️ <% } %>
+                <% if(key === 'blog') { %> 📰 <% } %>
+                <% if(key === 'auth') { %> 🔐 <% } %>
+                <% if(key === 'transparency') { %> 📊 <% } %>
+                <% if(key === 'audit_log') { %> 📜 <% } %>
+                <% if(key === 'cron') { %> ⏰ <% } %>
+                <% if(key === 'whatsapp') { %> 💬 <% } %>
+                <% if(key === 'email') { %> 📧 <% } %>
+            </div>
+            <div>
+                <h3 class="font-bold text-lg capitalize"><%= key.replace('_', ' ') %></h3>
+                <p class="text-[10px] text-gray-400 mt-0.5 mb-1 line-clamp-2 leading-tight max-w-[150px]"><%= moduleDescriptions[key] || '' %></p>
+                <span class="text-xs <%= module.enabled ? 'text-green-400' : 'text-gray-500' %>" id="status-<%= key %>">
+                    <%= module.enabled ? 'Ativo' : 'Inativo' %>
+                </span>
+            </div>
+        </div>
+        <!-- HTMX Toggle -->
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" 
+                   class="sr-only peer" 
+                   <%= module.enabled ? 'checked' : '' %>
+                   hx-post="/admin/modules/toggle"
+                   hx-vals='{"module": "<%= key %>", "enabled": <%= !module.enabled %>}'
+                   hx-target="#module-card-<%= key %>"
+                   hx-swap="outerHTML">
+            <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+        </label>
+    </div>
+
+    <!-- Settings Accordion -->
+    <% if(module.settings && Object.keys(module.settings).length > 0) { %>
+        <details class="group mt-4 border-t border-white/5 pt-4">
+            <summary class="flex items-center justify-between cursor-pointer text-sm text-gray-400 hover:text-white transition">
+                <span>Configurações</span>
+                <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </summary>
+            
+            <form hx-post="/admin/modules/update" hx-swap="none" class="mt-4 space-y-4">
+                <input type="hidden" name="moduleName" value="<%= key %>">
+                
+                <% 
+                // Render all fields except 'enabled'
+                const settings = { ...module.settings };
+                // Sometimes module structure varies (enabled is sibling or setting?)
+                // In config: module = { enabled: bool, settings: {} }
+                %>
+                
+                <% Object.entries(settings).forEach(([settingKey, value]) => { %>
+                    <div class="space-y-1">
+                        <label class="text-xs text-gray-400 uppercase font-bold"><%= settingKey.replace(/_/g, ' ') %></label>
+                        
+                        <% if (typeof value === 'boolean') { %>
+                            <select name="settings.<%= settingKey %>" class="w-full bg-black/20 border border-white/10 rounded px-3 py-2 text-sm text-white focus:border-indigo-500 outline-none">
+                                <option value="true" <%= value === true ? 'selected' : '' %>>Sim</option>
+                                <option value="false" <%= value === false ? 'selected' : '' %>>Não</option>
+                            </select>
+                        <% } else if (typeof value === 'number') { %>
+                            <input type="number" name="settings.<%= settingKey %>" value="<%= value %>" class="w-full bg-black/20 border border-white/10 rounded px-3 py-2 text-sm text-white focus:border-indigo-500 outline-none">
+                        <% } else if (Array.isArray(value)) { %>
+                            <textarea name="settings.<%= settingKey %>" rows="3" class="w-full bg-black/20 border border-white/10 rounded px-3 py-2 text-sm text-white focus:border-indigo-500 outline-none font-mono text-xs"><%= JSON.stringify(value, null, 2) %></textarea>
+                            <p class="text-[10px] text-gray-500">Formato: JSON Array</p>
+                        <% } else if (typeof value === 'object' && value !== null) { %>
+                            <!-- Nested Objects (e.g. pay_to_comment) -->
+                            <div class="pl-4 border-l-2 border-white/10 space-y-2">
+                                <% Object.entries(value).forEach(([subKey, subValue]) => { %>
+                                    <div>
+                                        <label class="text-[10px] text-gray-500"><%= subKey %></label>
+                                        <% if (typeof subValue === 'boolean') { %>
+                                            <select name="settings.<%= settingKey %>.<%= subKey %>" class="w-full bg-black/20 border border-white/10 rounded px-2 py-1 text-xs text-white">
+                                                <option value="true" <%= subValue === true ? 'selected' : '' %>>Sim</option>
+                                                <option value="false" <%= subValue === false ? 'selected' : '' %>>Não</option>
+                                            </select>
+                                        <% } else { %>
+                                            <input type="text" name="settings.<%= settingKey %>.<%= subKey %>" value="<%= subValue %>" class="w-full bg-black/20 border border-white/10 rounded px-2 py-1 text-xs text-white">
+                                        <% } %>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        <% } else { %>
+                            <input type="text" name="settings.<%= settingKey %>" value="<%= value %>" class="w-full bg-black/20 border border-white/10 rounded px-3 py-2 text-sm text-white focus:border-indigo-500 outline-none">
+                        <% } %>
+                    </div>
+                <% }); %>
+                
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2 rounded transition">
+                    Salvar Alterações
+                </button>
+            </form>
+        </details>
+    <% } %>
+
+    <!-- Integrations Settings (Flat structure handling for integrations which are modules too) -->
+    <!-- But config.integrations have fields like 'account_id' directly on module, not in 'settings' -->
+    <% 
+      // Check if this is an integration style module (fields are not in 'settings' object but flat)
+      // Standard modules: { enabled, settings: { ... } }
+      // Integrations (in config.integrations): { enabled, account_id, ... }
+      
+      const isIntegration = !module.settings && Object.keys(module).length > 1; 
+    %>
+    <% if(isIntegration) { %>
+        <details class="group mt-4 border-t border-white/5 pt-4">
+             <summary class="flex items-center justify-between cursor-pointer text-sm text-gray-400 hover:text-white transition">
+                <span>Configurações</span>
+                <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </summary>
+            
+            <form hx-post="/admin/modules/update" hx-swap="none" class="mt-4 space-y-4">
+                 <input type="hidden" name="moduleName" value="<%= key %>">
+                 <% 
+                    const flatSettings = { ...module };
+                    delete flatSettings.enabled;
+                 %>
+                 <% Object.entries(flatSettings).forEach(([settingKey, value]) => { %>
+                      <div class="space-y-1">
+                           <label class="text-xs text-gray-400 uppercase font-bold"><%= settingKey.replace(/_/g, ' ') %></label>
+                           <% if (typeof value === 'boolean') { %>
+                                <select name="<%= settingKey %>" class="w-full bg-black/20 border border-white/10 rounded px-3 py-2 text-sm text-white focus:border-indigo-500 outline-none">
+                                    <option value="true" <%= value === true ? 'selected' : '' %>>Sim</option>
+                                    <option value="false" <%= value === false ? 'selected' : '' %>>Não</option>
+                                </select>
+                           <% } else { %>
+                                <input type="text" name="<%= settingKey %>" value="<%= value %>" class="w-full bg-black/20 border border-white/10 rounded px-3 py-2 text-sm text-white focus:border-indigo-500 outline-none">
+                           <% } %>
+                      </div>
+                 <% }); %>
+                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2 rounded transition">
+                    Salvar Alterações
+                </button>
+            </form>
+        </details>
+    <% } %>
+</div>

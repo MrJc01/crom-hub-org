@@ -17,12 +17,13 @@ function generateHandle(email) {
  * @param {string} email - User email
  * @returns {Promise<User>} - User record
  */
-export async function findOrCreateUser(email) {
+export async function findOrCreateUser(email, whatsapp = null) {
   if (!email) {
     throw new Error('Email é obrigatório');
   }
 
   const normalizedEmail = email.toLowerCase().trim();
+  const cleanWhatsapp = whatsapp ? whatsapp.replace(/\D/g, '') : null;
 
   // Try to find existing user
   let user = await prisma.user.findUnique({
@@ -31,10 +32,19 @@ export async function findOrCreateUser(email) {
 
   if (user) {
     // Update role if user became admin (added to ADMIN_EMAILS)
+    // Also update whatsapp if provided and not present
+    let updateData = {};
     if (isAdmin(normalizedEmail) && user.role !== 'admin') {
+        updateData.role = 'admin';
+    }
+    if (cleanWhatsapp && !user.whatsapp) {
+        updateData.whatsapp = cleanWhatsapp;
+    }
+
+    if (Object.keys(updateData).length > 0) {
       user = await prisma.user.update({
         where: { id: user.id },
-        data: { role: 'admin' },
+        data: updateData,
       });
     }
     return user;
@@ -59,6 +69,7 @@ export async function findOrCreateUser(email) {
       email: normalizedEmail,
       handle,
       role,
+      whatsapp: cleanWhatsapp,
     },
   });
 

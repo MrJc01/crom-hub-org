@@ -1,0 +1,35 @@
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h2
+        class="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent"
+      >
+        Gerenciar Módulos
+      </h2>
+      <p class="text-gray-400 text-sm">Habilite e configure as funcionalidades do sistema.</p>
+    </div>
+  </div>
+
+  <!-- Modules Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% Object.entries(config.modules).forEach(([key, module]) => { %> <%-
+    include('../../partials/admin/module-card.ejs', { key, module }) %> <% }); %>
+  </div>
+
+  <!-- Integrations Grid -->
+  <div class="mt-12 flex justify-between items-center">
+    <div>
+      <h2
+        class="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent"
+      >
+        Integrações
+      </h2>
+      <p class="text-gray-400 text-sm">Serviços externos (WhatsApp, Email).</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+    <% Object.entries(config.integrations || {}).forEach(([key, module]) => { %> <%-
+    include('../../partials/admin/module-card.ejs', { key, module }) %> <% }); %>
+  </div>
+</div>

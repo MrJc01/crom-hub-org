@@ -2,6 +2,7 @@
  * Notification Service - Outgoing webhooks (Discord/Slack)
  */
 import { config } from '../config/loader.js';
+import nodemailer from 'nodemailer';
 
 /**
  * Send Discord webhook notification
@@ -10,7 +11,7 @@ export async function sendDiscordNotification(embed) {
   const webhookUrl = config.notifications?.discord_webhook;
   
   if (!webhookUrl) {
-    console.log('[Notifications] Discord webhook not configured');
+    // console.log('[Notifications] Discord webhook not configured');
     return false;
   }
 
@@ -43,7 +44,7 @@ export async function sendSlackNotification(blocks) {
   const webhookUrl = config.notifications?.slack_webhook;
   
   if (!webhookUrl) {
-    console.log('[Notifications] Slack webhook not configured');
+    // console.log('[Notifications] Slack webhook not configured');
     return false;
   }
 
@@ -119,9 +120,90 @@ export async function notifyProposal({ title, authorHandle }) {
   await sendDiscordNotification(embed);
 }
 
+/**
+ * Send Email via SMTP
+ */
+export async function sendEmail({ to, subject, html, text }) {
+    const emailConfig = config.integrations?.email;
+    if (!emailConfig?.enabled) return false;
+
+    try {
+        const transporter = nodemailer.createTransport({
+            host: emailConfig.host,
+            port: parseInt(emailConfig.port || '587'),
+            secure: parseInt(emailConfig.port) === 465,
+            auth: {
+                user: emailConfig.user,
+                pass: emailConfig.pass,
+            },
+        });
+
+        await transporter.sendMail({
+            from: emailConfig.from || '"Hub.org" <noreply@hub.org>',
+            to,
+            subject,
+            html,
+            text
+        });
+        console.log(`📧 Email enviado para ${to}`);
+        return true;
+    } catch (err) {
+        console.error('📧 Erro ao enviar email:', err.message);
+        return false;
+    }
+}
+
+/**
+ * Send WhatsApp via Official API
+ */
+export async function sendWhatsapp({ to, template, variables }) {
+    const waConfig = config.integrations?.whatsapp;
+    if (!waConfig?.enabled) return false;
+
+    const url = `https://graph.facebook.com/v17.0/${waConfig.phone_number_id}/messages`;
+    
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${waConfig.access_token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                messaging_product: 'whatsapp',
+                to: to,
+                type: 'template',
+                template: {
+                    name: template,
+                    language: { code: 'pt_BR' },
+                    components: [
+                         {
+                            type: 'body',
+                            parameters: variables || []
+                         }
+                    ]
+                }
+            })
+        });
+        
+        if (!response.ok) {
+            const err = await response.json();
+             console.error('💬 Erro no WhatsApp:', JSON.stringify(err));
+             return false;
+        }
+        console.log(`💬 WhatsApp enviado para ${to}`);
+        return true;
+    } catch (err) {
+        console.error('💬 Erro de conexão WhatsApp:', err.message);
+        return false;
+    }
+}
+
 export default {
   sendDiscordNotification,
   sendSlackNotification,
+  sendEmail,
+  sendWhatsapp,
   notifyDonation,
   notifyProposal,
 };

@@ -5,7 +5,7 @@ import { notifyDonation } from './notificationService.js';
 /**
  * Create a donation (IN transaction)
  */
-export async function createDonation({ amount, message, donorId, donorHandle, externalId }) {
+export async function createDonation({ amount, message, donorId, donorHandle, externalId, proofUrl, status }) {
   const donationConfig = config.modules.donations?.settings;
   
   // Validate amount against config
@@ -18,6 +18,7 @@ export async function createDonation({ amount, message, donorId, donorHandle, ex
     }
   }
 
+  // Transaction
   const transaction = await prisma.transaction.create({
     data: {
       type: 'IN',
@@ -27,9 +28,51 @@ export async function createDonation({ amount, message, donorId, donorHandle, ex
       donorHandle: donorHandle || null,
       message: message || null,
       externalId: externalId || null,
+      proofUrl: proofUrl || null,
+      status: status || 'completed',
       automatic: false,
     },
   });
+
+  // Update donor stats
+  if (donorId) {
+      const updatedUser = await prisma.user.update({
+          where: { id: donorId },
+          data: {
+              totalDonated: { increment: amount }
+          }
+      });
+      
+      // Check and assign badges/rewards
+      const rewards = donationConfig.rewards || [];
+      if (rewards.length > 0) {
+          let currentBadges = [];
+          try {
+              currentBadges = JSON.parse(updatedUser.badges || "[]");
+          } catch (e) { currentBadges = []; }
+          
+          let hasNewBadge = false;
+          
+          for (const reward of rewards) {
+            if (updatedUser.totalDonated >= reward.amount) {
+                // Check if badge already exists (by tag name)
+                const exists = currentBadges.some(b => b.tag === reward.tag);
+                if (!exists) {
+                    currentBadges.push({ tag: reward.tag, color: reward.color, earnedAt: new Date() });
+                    hasNewBadge = true;
+                }
+            }
+          }
+          
+          if (hasNewBadge) {
+              await prisma.user.update({
+                  where: { id: donorId },
+                  data: { badges: JSON.stringify(currentBadges) }
+              });
+              console.log(`🏅 Novas medalhas para ${updatedUser.handle}:`, currentBadges.map(b => b.tag).join(', '));
+          }
+      }
+  }
 
   console.log(`💰 Doação recebida: R$ ${amount.toFixed(2)}${donorHandle ? ` de ${donorHandle}` : ' (anônimo)'}`);
   
